@@ -3,7 +3,7 @@ name: hiq-cortex
 description: 'Look up real LCA emission factors and carbon footprint data from 18 life-cycle inventory databases (Ecoinvent, BAFU, USLCI, ELCD, EF, worldsteel, AusLCI, HiQLCD …) and 24,000+ published EPDs. Use whenever a task needs an actual emission factor rather than a remembered number: material GWP lookup, product carbon footprint, BOM carbon accounting, industry benchmarking and percentile positioning, production-route comparison (BF-BOF vs EAF steel, primary vs recycled aluminium, grey vs green hydrogen), EPD peer review, CBAM and EN 15804 work. Triggers on GWP, kg CO2e, emission factor, carbon footprint, LCA dataset, LCI, EPD, 碳足迹, 排放因子, 清单数据, 物料清单, 行业对标.'
 slug: hiq-cortex
 displayName: HiQ Cortex — LCA 数据查询
-version: 1.4.0
+version: 1.4.1
 summary: 从 18 个 LCA 数据库和 24000+ 已发布 EPD 查询真实排放因子。物料碳足迹、BOM 碳核算、行业对标定位、生产路线对比、EPD 同类审核。
 license: Apache-2.0
 homepage: https://github.com/HiQ-AI/agent-skills
