@@ -6,14 +6,20 @@ Open [Agent Skills](https://code.claude.com/docs/en/skills) published by [HiQ](h
 
 | Skill | What it does |
 |---|---|
-| [`querying-lca-datasets`](skills/querying-lca-datasets/) | Look up real LCA emission factors from 18 life-cycle inventory databases (Ecoinvent, BAFU, USLCI, ELCD, EF, worldsteel …) and 24,000+ published EPDs. Material GWP lookup, BOM carbon accounting, industry benchmarking, production-route comparison, EPD peer review. |
+| [`hiq-cortex`](skills/hiq-cortex/) | Look up real LCA emission factors from 18 life-cycle inventory databases (Ecoinvent, BAFU, USLCI, ELCD, EF, worldsteel …) and 24,000+ published EPDs. Material GWP lookup, BOM carbon accounting, industry benchmarking, production-route comparison, EPD peer review. |
+
+Also on [SkillHub](https://skillhub.cn/skills/user_377d1060/hiq-cortex) (WorkBuddy / OpenClaw and variants):
+
+```bash
+skillhub install hiq-cortex --dir <your agent's skills dir>
+```
 
 ## Install
 
 With [`npx skills`](https://github.com/vercel-labs/skills):
 
 ```bash
-npx skills add HiQ-AI/agent-skills --skill querying-lca-datasets
+npx skills add HiQ-AI/agent-skills --skill hiq-cortex
 ```
 
 Or copy the skill directory into your host's skills folder:
