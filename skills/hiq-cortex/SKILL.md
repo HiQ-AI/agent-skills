@@ -3,7 +3,7 @@ name: hiq-cortex
 description: '查询真实的 LCA 排放因子与碳足迹数据,覆盖 18 个生命周期清单数据库(Ecoinvent、BAFU、USLCI、ELCD、EF、worldsteel、AusLCI、HiQLCD 等)和 24000+ 已发布 EPD。当任务需要真实排放因子而不是凭记忆给数时使用:物料 GWP 查询、产品碳足迹、BOM 碳核算、行业对标与百分位定位、生产路线对比(转炉钢与电炉钢、原生铝与再生铝、灰氢与绿氢)、EPD 同类审核、CBAM 与 EN 15804 相关工作。触发词:碳足迹、排放因子、清单数据、物料清单、行业对标、碳排、GWP、kg CO2e、emission factor、carbon footprint、LCA dataset、LCI、EPD。'
 slug: hiq-cortex
 displayName: HiQ Cortex — LCA 数据查询
-version: 1.6.1
+version: 1.6.2
 summary: 从 18 个 LCA 数据库和 24000+ 已发布 EPD 查询真实排放因子。物料碳足迹、BOM 碳核算、行业对标定位、生产路线对比、EPD 同类审核。
 license: Apache-2.0
 homepage: https://github.com/HiQ-AI/agent-skills
@@ -20,7 +20,24 @@ tags:
 
 碳足迹的答案必须来自真实清单数据。凭记忆给出的「钢材大约 2 kg CO₂e/kg」对 LCA 从业者没有用:真实值取决于数据库、版本、系统模型、生产路线和地域,在这些维度上会差出数倍。
 
-本技能接入 HiQ Cortex —— 18 个 LCA 数据库(11 个免费、7 个商业)和 24000+ 已发布 EPD。
+## 关于
+
+本技能接入 **HiQ Cortex** —— [海科数据](https://www.hiqlcd.com/)的 LCA 数据智能服务。海科数据是国内 LCA 基础数据与碳足迹服务提供商,自建中国本土生命周期清单数据库,并聚合国际主流数据源。
+
+通过本技能可访问:
+
+- **18 个生命周期清单数据库**,其中 11 个免费。含**中国本土数据**(HiQLCD 覆盖中国全工业体系、CALCD、电子电器 HiQ-CESI、铝产业链 HiQLCD-AL)与国际主流库(Ecoinvent、BAFU、ELCD、EF、worldsteel、USLCI、AusLCI、CarbonMinds、Agri-footprint 等)。中国生产场景用本土库,不必拿欧洲数据代替。
+- **24000+ 已发布 EPD**(EPDItaly、ECO Platform、EPD Norge),可做同类分布与离群审核。
+- 遵循 ISO 14040/14044 与 GB/T 24040/24044 口径,系统模型覆盖截止法、后果法、APOS、EN 15804。
+
+适用于产品碳足迹核算、BOM 碳排、CBAM 申报、EPD 编制与审核、生态设计选型、行业对标。
+
+## 隐私与安全
+
+- API key **只从环境变量或宿主的 MCP 配置读取**,技能不会把它写进任何文件,也不会在输出中回显。
+- 查询内容**仅发往 `x.hiqlcd.com`**(海科数据 API),不发往任何第三方。
+- **不收集、不上传**本地文件、目录结构、对话内容或任何其他数据。
+- 内置脚本仅使用 Python 标准库,无第三方依赖,源码可审阅:[GitHub](https://github.com/HiQ-AI/agent-skills)。
 
 ## 硬规则
 
