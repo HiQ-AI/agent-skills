@@ -2,53 +2,55 @@
 
 用于**判断检索方向**和**识别歧义**的领域知识。
 
-⚠️ **表中的典型区间不是可以引用的数值**。它们的用途只有三个:决定该用什么词检索、判断工具返回的结果是否落在合理范围、判断是否需要向用户澄清路线。**回答用户的数值必须来自工具调用**,不能引用本表。
+本文件**不含任何可引用的数值**,只说明「要区分什么、该怎么检索、什么时候必须澄清」。**所有数值一律来自工具调用** —— 这正是本技能存在的理由:排放因子随数据库、版本、系统模型、路线、地域变化,没有可以背下来的通用值。
+
+文中出现的倍数关系(如「原生铝与再生铝相差 4–10 倍」)用于说明为什么必须区分路线,不能据此推算具体数值。
 
 检索词保留英文,因为数据库里的过程名以英文为主(HiQLCD 为中英双语,中文词命中率往往更高)。
 
 ## 钢
 
-| 用户会说 | 行业术语 | 工艺含义 | 检索词 | 典型区间 (kgCO₂e/kg) |
-|---|---|---|---|---|
-| 长流程 / 转炉钢 | BF-BOF | 铁矿石 → 高炉 → 转炉 → 粗钢 | `blast furnace, basic oxygen furnace` | 1.7–2.5 |
-| 短流程 / 电炉钢 | EAF | 废钢 → 电弧炉 → 粗钢 | `electric arc furnace, steel scrap` | 0.4–0.8 |
-| 半长流程 | DRI+EAF | 天然气直接还原 + 电炉 | `direct reduced iron, electric arc furnace` | 1.2–1.8 |
-| 绿钢 / 氢冶金 | H-DRI+EAF | 绿氢还原 + 电炉 | `hydrogen-based DRI, green steel` | 0.3–0.6 |
-| 热轧卷 / 板 / 型材 | — | 粗钢 → 再加热 → 轧制 | `hot rolling, steel coil/sheet/plate` | 粗钢 + 0.1–0.3 |
-| 冷轧板 / 带 | — | 热轧 → 酸洗 → 冷轧 | `cold rolling, steel sheet` | 热轧 + 0.1–0.2 |
-| 镀锌板(热镀 / 电镀) | — | 冷轧板 → 锌层 | `galvanized steel, zinc coating` | 冷轧 + 0.3–0.5 |
-| 螺纹钢 / 建筑钢筋 | — | 长流程 → 热轧棒材 | `reinforcing steel, steel rebar` | 2.0–2.5 |
-| 不锈钢 | 304 / 316 / 430 | 电炉 + AOD 精炼 | `stainless steel, chromium steel 18/8` | 4.5–6.5 |
-| 球团 / 烧结矿 | 炼铁原料 | 造球 / 烧结 | `iron ore pellet / sinter` | 0.1–0.3 |
+| 用户会说 | 行业术语 | 工艺含义 | 检索词  |
+|---|---|---|--- |
+| 长流程 / 转炉钢 | BF-BOF | 铁矿石 → 高炉 → 转炉 → 粗钢 | `blast furnace, basic oxygen furnace`  |
+| 短流程 / 电炉钢 | EAF | 废钢 → 电弧炉 → 粗钢 | `electric arc furnace, steel scrap`  |
+| 半长流程 | DRI+EAF | 天然气直接还原 + 电炉 | `direct reduced iron, electric arc furnace`  |
+| 绿钢 / 氢冶金 | H-DRI+EAF | 绿氢还原 + 电炉 | `hydrogen-based DRI, green steel`  |
+| 热轧卷 / 板 / 型材 | — | 粗钢 → 再加热 → 轧制 | `hot rolling, steel coil/sheet/plate`  |
+| 冷轧板 / 带 | — | 热轧 → 酸洗 → 冷轧 | `cold rolling, steel sheet`  |
+| 镀锌板(热镀 / 电镀) | — | 冷轧板 → 锌层 | `galvanized steel, zinc coating`  |
+| 螺纹钢 / 建筑钢筋 | — | 长流程 → 热轧棒材 | `reinforcing steel, steel rebar`  |
+| 不锈钢 | 304 / 316 / 430 | 电炉 + AOD 精炼 | `stainless steel, chromium steel 18/8`  |
+| 球团 / 烧结矿 | 炼铁原料 | 造球 / 烧结 | `iron ore pellet / sinter`  |
 
 中国约 90% 钢产量为长流程。用户未指明时按 BF-BOF 处理,并说明这一假设。
 
 ## 铝
 
-| 用户会说 | 工艺含义 | 检索词 | 典型区间 (kgCO₂e/kg) |
-|---|---|---|---|
-| 原生铝 / 电解铝 | 氧化铝 → 电解 | `primary aluminium, electrolysis` | 中国 14–20,欧洲 8–10 |
-| 再生铝 | 废铝 → 重熔 | `secondary aluminium, scrap` | 0.5–1.5 |
-| 铝型材 / 挤压 | 挤压成型 | `aluminium extrusion, profile` | 基材 + 0.5–1.0 |
-| 铝板 / 铝卷 | 轧制 | `aluminium sheet, rolling` | 基材 + 0.3–0.5 |
-| 铝箔 | 极薄轧制(6–200 μm) | `aluminium foil` | 基材 + 1.0–2.0 |
-| 压铸铝 | ADC12 等铸造合金 | `aluminium die casting` | 多为再生铝 + 铸造 |
+| 用户会说 | 工艺含义 | 检索词  |
+|---|---|--- |
+| 原生铝 / 电解铝 | 氧化铝 → 电解 | `primary aluminium, electrolysis`  |
+| 再生铝 | 废铝 → 重熔 | `secondary aluminium, scrap`  |
+| 铝型材 / 挤压 | 挤压成型 | `aluminium extrusion, profile`  |
+| 铝板 / 铝卷 | 轧制 | `aluminium sheet, rolling`  |
+| 铝箔 | 极薄轧制(6–200 μm) | `aluminium foil`  |
+| 压铸铝 | ADC12 等铸造合金 | `aluminium die casting`  |
 
 原生与再生相差 4–10 倍。用户只说「铝」时**必须澄清**,或至少两条都给出来做对比。
 
 ## 塑料
 
-| 用户会说 | 还需区分 | 检索词 | 典型区间 (kgCO₂e/kg) |
-|---|---|---|---|
-| PE / 聚乙烯 | HDPE / LDPE / LLDPE | `polyethylene, high/low density` | 1.8–2.5 |
-| PP / 聚丙烯 | — | `polypropylene, granulate` | 1.5–2.5 |
-| PVC | 硬质(管材)/ 软质(薄膜) | `PVC suspension / PVC emulsion` | 1.8–2.8 |
-| PET | 瓶级 / 纤维级 | `PET bottle grade / PET fibre` | 2.5–3.5 |
-| ABS | — | `acrylonitrile butadiene styrene` | 3.0–4.0 |
-| PC / 聚碳酸酯 | — | `polycarbonate` | 5–7 |
-| PA / 尼龙 | PA6 / PA66 | `polyamide 6 / polyamide 6.6` | 6–9 |
-| 玻纤增强 | 基材树脂 + 玻纤比例 | `glass fibre reinforced` + 基材 | 基材 + 10–30% |
-| 再生塑料 | 具体是哪种树脂 | `recycled` + 具体树脂 | 原生的 30–70% |
+| 用户会说 | 还需区分 | 检索词  |
+|---|---|--- |
+| PE / 聚乙烯 | HDPE / LDPE / LLDPE | `polyethylene, high/low density`  |
+| PP / 聚丙烯 | — | `polypropylene, granulate`  |
+| PVC | 硬质(管材)/ 软质(薄膜) | `PVC suspension / PVC emulsion`  |
+| PET | 瓶级 / 纤维级 | `PET bottle grade / PET fibre`  |
+| ABS | — | `acrylonitrile butadiene styrene`  |
+| PC / 聚碳酸酯 | — | `polycarbonate`  |
+| PA / 尼龙 | PA6 / PA66 | `polyamide 6 / polyamide 6.6`  |
+| 玻纤增强 | 基材树脂 + 玻纤比例 | `glass fibre reinforced` + 基材  |
+| 再生塑料 | 具体是哪种树脂 | `recycled` + 具体树脂  |
 
 用户只说「塑料」必须问是哪种树脂;给了具体牌号(PP / ABS 等)直接检索。
 
