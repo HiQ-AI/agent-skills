@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""HiQ Cortex LCA data CLI — search and read real life-cycle inventory data.
+"""HiQ Cortex LCA 数据查询 CLI —— 检索并读取真实生命周期清单数据。
 
-Standard library only: no pip install, no MCP configuration needed. Set the API
-key once and every subcommand works:
+仅依赖 Python 标准库:无需 pip install,无需配置 MCP。设置一次 API key,
+所有子命令即可使用:
 
     export HIQ_API_KEY=sk_xxx
     python3 cortex.py search "304 stainless steel"
@@ -13,11 +13,10 @@ key once and every subcommand works:
     python3 cortex.py epd "concrete" [--unit m3] [--geo IT]
     python3 cortex.py epd-benchmark "ready mix concrete" --unit m3
 
-Add --json to any subcommand for the raw payload.
+任意子命令加 --json 可输出原始 payload。
 
-Every subcommand exits non-zero on failure and prints an actionable message on
-stderr. Restricted data is not an error: it exits 0 and prints how to obtain
-access, because that is a licensing decision for the user, not a bug to retry.
+失败时退出码非 0,并在 stderr 打印可操作的说明。受限数据不算失败:退出码为 0
+并打印开通方式 —— 那是用户的授权决策,不是需要重试的故障。
 """
 
 from __future__ import annotations
@@ -42,8 +41,8 @@ def _key() -> str:
     k = os.environ.get("HIQ_API_KEY", "").strip()
     if not k:
         sys.exit(
-            "HIQ_API_KEY is not set.\n"
-            "Register at https://www.hiqlcd.com/ and create a key in the account console, then:\n"
+            "未设置 HIQ_API_KEY。\n"
+            "请在 https://www.hiqlcd.com/ 注册并在控制台创建 API key,然后:\n"
             "  export HIQ_API_KEY=sk_xxx"
         )
     return k
@@ -66,12 +65,12 @@ def _post(url: str, data: bytes, headers: dict, timeout: int) -> str:
     except urllib.error.HTTPError as e:
         body = e.read().decode("utf-8", "replace")[:300]
         if e.code == 401:
-            sys.exit(f"401 unauthorized — check HIQ_API_KEY. Server said: {body}")
+            sys.exit(f"401 鉴权失败 —— 请检查 HIQ_API_KEY。服务端返回:{body}")
         if e.code == 429:
-            sys.exit("429 rate limited — the endpoint allows 100 requests/minute. Back off and retry.")
+            sys.exit("429 触发限流 —— 接口限 100 次/分钟。退避后重试。")
         sys.exit(f"HTTP {e.code}: {body}")
     except urllib.error.URLError as e:
-        sys.exit(f"network error: {e.reason}")
+        sys.exit(f"网络错误:{e.reason}")
 
 
 def _sse_events(raw: str):
@@ -96,7 +95,7 @@ def call_tool(name: str, arguments: dict) -> dict:
     )
     for ev in _sse_events(raw):
         if "error" in ev:
-            sys.exit(f"tool error: {json.dumps(ev['error'], ensure_ascii=False)[:300]}")
+            sys.exit(f"工具调用失败:{json.dumps(ev['error'], ensure_ascii=False)[:300]}")
         result = ev.get("result")
         if not result:
             continue
@@ -104,8 +103,8 @@ def call_tool(name: str, arguments: dict) -> dict:
         try:
             return json.loads(text)
         except json.JSONDecodeError:
-            sys.exit(f"unexpected tool payload: {text[:300]}")
-    sys.exit(f"no result from {name}. Raw response head: {raw[:200]}")
+            sys.exit(f"工具返回格式异常:{text[:300]}")
+    sys.exit(f"{name} 无返回结果。响应开头:{raw[:200]}")
 
 
 # ── formatting ────────────────────────────────────────────────────────────────
@@ -120,10 +119,10 @@ def _entitlement_note(block: dict) -> str:
         srcs = [one] if one else []
     who = "/".join(srcs) if srcs else "this database"
     return (
-        f"\n⛔ {who} requires a data package entitlement — this account does not have it.\n"
-        f"   Obtain access: {url}\n"
-        f"   Do NOT retry and do NOT substitute a value from another database silently.\n"
-        f"   Free alternatives that need no entitlement: bafu, uslci, elcd, ef, worldsteel."
+        f"\n⛔ {who} 需要数据包权益,当前账号没有。\n"
+        f"   开通入口:{url}\n"
+        f"   不要重试,也不要用其他数据库的值静默替代。\n"
+        f"   无需权益的免费库:bafu、uslci、elcd、ef、worldsteel。"
     )
 
 
@@ -134,17 +133,17 @@ def fmt_search(res: dict) -> str:
         out.append(f"summary: {res['summary']}")
     rows = res.get("datasets") or []
     if not rows:
-        out.append("\nNo datasets matched. Try a broader term, the English name, or drop --sources.")
+        out.append("\n未匹配到数据集。可放宽关键词、改用英文名,或去掉 --sources。")
         return "\n".join(out)
     if status == "partial":
-        out.append("⚠ partial match — read each name before using it; it may be a related but different product.")
+        out.append("⚠ 部分匹配 —— 使用前逐条核对名称,可能是相关但不同的产品。")
     out.append("")
     for i, d in enumerate(rows, 1):
         out.append(f"{i}. {d.get('name', '?')}")
         out.append(f"   key: {d.get('key', '')}")
         if d.get("link"):
             out.append(f"   link: {d['link']}")
-    out.append("\nNext: python3 cortex.py lookup <key> [<key> ...]")
+    out.append("\n下一步:python3 cortex.py lookup <key> [<key> ...]")
     return "\n".join(out)
 
 
@@ -155,25 +154,25 @@ def fmt_lookup(res: dict) -> str:
     for h in hits:
         out.append(f"• {h.get('name', '?')}")
         basis = " · ".join(x for x in [h.get("src"), h.get("ver"), h.get("model"), h.get("loc")] if x)
-        out.append(f"  basis: {basis or 'n/a'}   unit: {h.get('unit') or 'n/a'}")
+        out.append(f"  基准:{basis or '—'}   单位:{h.get('unit') or '—'}")
         if h.get("restricted"):
             r = h.get("restriction") or {}
-            out.append(f"  GWP: RESTRICTED{_entitlement_note(r)}")
+            out.append(f"  GWP:受限{_entitlement_note(r)}")
         elif h.get("gwp") is not None:
             out.append(f"  GWP: {h['gwp']} {h.get('gwp_unit') or 'kg CO2 eq'}")
         else:
-            out.append("  GWP: no headline value in this dataset")
+            out.append("  GWP:该数据集无 headline 数值")
         # cortex-link.internal is an in-app sentinel handled by HiQ's own clients;
         # it is not resolvable in a browser, so never hand it to an external user.
         link = h.get("link") or ""
         if link and "cortex-link.internal" not in link:
-            out.append(f"  link: {link}")
+            out.append(f"  链接:{link}")
         out.append("")
     missing = data.get("missing_keys") or []
     if missing:
-        out.append(f"missing {len(missing)} key(s) — likely from an older catalog version; re-run search:")
+        out.append(f"有 {len(missing)} 个 key 未命中 —— 多为旧版本目录的 key,请重新检索:")
         out.extend(f"  {k}" for k in missing[:10])
-    return "\n".join(out).rstrip() or "no results"
+    return "\n".join(out).rstrip() or "无结果"
 
 
 def fmt_aggregate(res: dict) -> str:
@@ -184,19 +183,19 @@ def fmt_aggregate(res: dict) -> str:
     p = res.get("percentiles") or {}
     out = [
         f"n = {res.get('count')}   unit: {res.get('unit')}",
-        f"avg {res.get('avg')}   min {res.get('min')}   max {res.get('max')}",
-        "percentiles: " + "  ".join(f"{k} {v}" for k, v in p.items()),
+        f"均值 {res.get('avg')}   最小 {res.get('min')}   最大 {res.get('max')}",
+        "百分位:" + "  ".join(f"{k} {v}" for k, v in p.items()),
     ]
     t = res.get("target")
     if t:
         # This block comes back camelCase while the rest of the payload is snake_case.
         out.append(
-            f"\ntarget {t.get('value')}: rank {t.get('rank')}/{t.get('of')} "
-            f"(better than {t.get('betterThanPct')}% of the cohort), "
-            f"{t.get('deltaVsMedianPct')}% vs median"
+            f"\n目标值 {t.get('value')}:排名 {t.get('rank')}/{t.get('of')} "
+            f"(优于队列中 {t.get('betterThanPct')}%),"
+            f"较中位数 {t.get('deltaVsMedianPct')}%"
         )
     if res.get("comparability_note"):
-        out.append(f"\n⚠ comparability: {res['comparability_note']}")
+        out.append(f"\n⚠ 可比性:{res['comparability_note']}")
     return "\n".join(out)
 
 
@@ -207,9 +206,9 @@ def fmt_indicators(res: dict) -> str:
         return out + (_entitlement_note(ent) if ent else "")
     p = res.get("percentiles") or {}
     return "\n".join([
-        f"{res.get('indicator')} ({res.get('method_id')})   n = {res.get('count')}   unit: {res.get('unit')}",
-        f"avg {res.get('avg')}   min {res.get('min')}   max {res.get('max')}",
-        "percentiles: " + "  ".join(f"{k} {v}" for k, v in p.items()),
+        f"{res.get('indicator')} ({res.get('method_id')})   n = {res.get('count')}   单位:{res.get('unit')}",
+        f"均值 {res.get('avg')}   最小 {res.get('min')}   最大 {res.get('max')}",
+        "百分位:" + "  ".join(f"{k} {v}" for k, v in p.items()),
         f"\n⚠ {res.get('comparability_note')}" if res.get("comparability_note") else "",
     ]).rstrip()
 
@@ -217,14 +216,14 @@ def fmt_indicators(res: dict) -> str:
 def fmt_epd(res: dict) -> str:
     rows = res.get("results") or []
     if not rows:
-        return f"status: {res.get('status')}  no EPDs matched."
-    out = [f"total {res.get('total')} (showing {len(rows)})", ""]
+        return f"status: {res.get('status')}  未匹配到 EPD。"
+    out = [f"共 {res.get('total')} 条(显示 {len(rows)} 条)", ""]
     for r in rows:
         g = r.get("gwp_a1a3") or {}
         val = f"{g.get('value')} {g.get('unit')}" if g.get("value") is not None else "n/a"
         out.append(f"• {r.get('name', '?')}")
-        out.append(f"  {r.get('declared_unit')} · {r.get('location')} · {r.get('pt_source')} · valid to {r.get('valid_until')}")
-        out.append(f"  GWP A1-A3: {val}   epd_key: {r.get('epd_key')}")
+        out.append(f"  {r.get('declared_unit')} · {r.get('location')} · {r.get('pt_source')} · 有效期至 {r.get('valid_until')}")
+        out.append(f"  GWP A1-A3:{val}   epd_key: {r.get('epd_key')}")
         out.append("")
     return "\n".join(out).rstrip()
 
@@ -242,54 +241,54 @@ def cmd_search(a) -> dict:
             try:
                 return json.loads(ev.get("content") or "{}")
             except json.JSONDecodeError:
-                sys.exit(f"could not parse search result: {str(ev.get('content'))[:200]}")
-    sys.exit("search did not complete. It normally takes 20-40s; retry once if this persists.")
+                sys.exit(f"检索结果解析失败:{str(ev.get('content'))[:200]}")
+    sys.exit("检索未完成。正常耗时 20–40 秒;若持续如此可重试一次。")
 
 
 def main() -> None:
-    ap = argparse.ArgumentParser(description="HiQ Cortex LCA data CLI")
-    ap.add_argument("--json", action="store_true", help="print the raw payload")
+    ap = argparse.ArgumentParser(description="HiQ Cortex LCA 数据查询 CLI")
+    ap.add_argument("--json", action="store_true", help="输出原始 payload")
     # Shared parent so `--json` works after the subcommand too — agents write it
     # either way and an argparse error there is a wasted turn.
     common = argparse.ArgumentParser(add_help=False)
     common.add_argument("--json", action="store_true", help=argparse.SUPPRESS)
     sub = ap.add_subparsers(dest="cmd", required=True, parser_class=lambda **kw: argparse.ArgumentParser(parents=[common], **kw))
 
-    s = sub.add_parser("search", help="material name -> dataset keys (20-40s)")
+    s = sub.add_parser("search", help="材料名 → 数据集 key(耗时 20-40 秒)")
     s.add_argument("query")
-    s.add_argument("--sources", default="", help="comma-separated, e.g. BAFU,Ecoinvent")
+    s.add_argument("--sources", default="", help="逗号分隔,如 BAFU,Ecoinvent")
 
-    lk = sub.add_parser("lookup", help="dataset keys -> GWP and basis")
+    lk = sub.add_parser("lookup", help="数据集 key → GWP 与基准")
     lk.add_argument("keys", nargs="+")
 
-    ag = sub.add_parser("aggregate", help="cohort GWP distribution / percentile positioning")
-    ag.add_argument("--source", default="", help="database code, e.g. bafu")
+    ag = sub.add_parser("aggregate", help="队列 GWP 分布 / 百分位定位")
+    ag.add_argument("--source", default="", help="数据库代码,如 bafu")
     ag.add_argument("--category", default="")
     ag.add_argument("--location", default="")
-    ag.add_argument("--keys", default="", help="comma-separated keys instead of a predicate")
-    ag.add_argument("--target", type=float, default=None, help="your own value, to position it")
+    ag.add_argument("--keys", default="", help="用逗号分隔的 key 替代谓词")
+    ag.add_argument("--target", type=float, default=None, help="你自己的数值,用于定位")
     ag.add_argument("--group-by", default="")
 
-    ind = sub.add_parser("indicators", help="non-GWP LCIA indicator over a cohort")
+    ind = sub.add_parser("indicators", help="队列的非 GWP LCIA 指标")
     ind.add_argument("keys", nargs="+")
     ind.add_argument("--indicator", default="AP")
-    ind.add_argument("--source", default="hiqlcd", help="must match where the cohort lives")
+    ind.add_argument("--source", default="hiqlcd", help="必须与队列实际所在库一致")
 
-    hs = sub.add_parser("hotspot", help="per-stage breakdown for one dataset")
+    hs = sub.add_parser("hotspot", help="单个数据集的工序级拆解")
     hs.add_argument("key")
     hs.add_argument("--baseline", default="")
     hs.add_argument("--indicator", default="GWP100")
     hs.add_argument("--source", default="hiqlcd")
 
-    ep = sub.add_parser("epd", help="search published EPDs")
+    ep = sub.add_parser("epd", help="检索已发布 EPD")
     ep.add_argument("query")
-    ep.add_argument("--unit", default="", help="declared unit, e.g. m3")
-    ep.add_argument("--geo", default="", help="ISO code, e.g. IT")
+    ep.add_argument("--unit", default="", help="声明单位,如 m3")
+    ep.add_argument("--geo", default="", help="ISO 地区码,如 IT")
     ep.add_argument("--limit", type=int, default=10)
 
-    eb = sub.add_parser("epd-benchmark", help="peer distribution for an EPD category")
+    eb = sub.add_parser("epd-benchmark", help="EPD 品类同类分布")
     eb.add_argument("category")
-    eb.add_argument("--unit", default="", help="strongly recommended")
+    eb.add_argument("--unit", default="", help="强烈建议指定")
     eb.add_argument("--indicators", default="GWP-total")
     eb.add_argument("--modules", default="A1-A3")
 
@@ -307,7 +306,7 @@ def main() -> None:
             where = {k: v for k, v in
                      {"source": a.source, "category": a.category, "location": a.location}.items() if v}
             if not where:
-                sys.exit("aggregate needs --keys or at least one predicate (--source/--category/--location)")
+                sys.exit("aggregate 需要 --keys,或至少一个谓词(--source/--category/--location)")
             args["where"] = json.dumps(where)
         if a.target is not None:
             args["target_value"] = a.target

@@ -1,51 +1,52 @@
-# Databases
+# 数据库
 
-Snapshot as of 2026-08. Versions change over time — the authoritative basis is whatever a `lookup` returns for a given dataset, so always quote the version from the response rather than from this table.
+以下为 2026-08 快照。版本会变 —— 权威基准是 `lookup` 针对具体数据集返回的值,引用版本号时以返回结果为准,不要抄本表。
 
-## Free — any valid API key
+## 免费 —— 任一有效 API key 可用
 
-| Code | Version | System model | LCIA indicators | Use it for |
+| 代码 | 版本 | 系统模型 | LCIA 指标数 | 适用 |
 |---|---|---|---|---|
-| `bafu` | 2025 | DEFAULT | 334 | Swiss national inventory. Broad coverage, full LCIA, well maintained. The best free default for European-context work. |
-| `elcd` | 3.2 | DEFAULT | 294 | European reference LCD. Materials, energy, transport, end-of-life. |
-| `uslci` | 1.0 | DEFAULT | 34 | US unit processes — fuels, transport, forestry, metals. |
-| `usda` | 1.0 | DEFAULT | 63 | US agriculture and food systems. |
-| `ef` | 3.1.0 | DEFAULT | 14 | Environmental Footprint reference package (EU PEF/OEF context). |
-| `worldsteel` | 2020 | DEFAULT | 14 | Global steel industry average data. The reference for steel LCI. |
-| `auslci` | 1.40 | DEFAULT | 1 | Australian national inventory. GWP only. |
-| `needs` | 1.0 | DEFAULT | 1 | European energy scenarios. GWP only. |
-| `ozlci` | 1.0 | DEFAULT | 1 | Australasian datasets. GWP only. |
-| `bioenergiedat` | 1.0 | DEFAULT | 1 | European bioenergy. GWP only. |
-| `recycledplastics` | 1.0 | DEFAULT | — | Recycled plastics eco-profiles. No LCIA layer — LCI only. |
+| `bafu` | 2025 | DEFAULT | 334 | 瑞士国家清单。覆盖面广、LCIA 完整、维护良好。欧洲语境下最好的免费默认选择。 |
+| `elcd` | 3.2 | DEFAULT | 294 | 欧洲参考生命周期数据库。材料、能源、运输、生命周期末端。 |
+| `uslci` | 1.0 | DEFAULT | 34 | 美国单元过程 —— 燃料、运输、林业、金属。 |
+| `usda` | 1.0 | DEFAULT | 63 | 美国农业与食品系统。 |
+| `ef` | 3.1.0 | DEFAULT | 14 | Environmental Footprint 参考包(欧盟 PEF/OEF 语境)。 |
+| `worldsteel` | 2020 | DEFAULT | 14 | 全球钢铁行业平均数据。钢铁 LCI 的参考来源。 |
+| `auslci` | 1.40 | DEFAULT | 1 | 澳大利亚国家清单。仅 GWP。 |
+| `needs` | 1.0 | DEFAULT | 1 | 欧洲能源情景。仅 GWP。 |
+| `ozlci` | 1.0 | DEFAULT | 1 | 澳新地区数据集。仅 GWP。 |
+| `bioenergiedat` | 1.0 | DEFAULT | 1 | 欧洲生物质能源。仅 GWP。 |
+| `recycledplastics` | 1.0 | DEFAULT | — | 再生塑料生态档案。无 LCIA 层,仅 LCI。 |
 
-## Commercial — requires a data package entitlement
+## 商业 —— 需对应数据包权益
 
-| Code | Version | System models | LCIA indicators | Use it for |
+| 代码 | 版本 | 系统模型 | LCIA 指标数 | 适用 |
 |---|---|---|---|---|
-| `ecoinvent` | 3.12.0 | CUT_OFF, APOS, CONSEQUENTIAL_LONG, EN_15804 | 240 | The global reference database. Widest coverage; most published studies use it. |
-| `hiqlcd` | 1.5.0 | CUT_OFF, CONSEQUENTIAL, EN_15804 | 248 | China-native inventory. Use this for Chinese production, not a European proxy. |
-| `hiqlcd-al` | 2.0.0 | CUT_OFF, CONSEQUENTIAL | 359 | Aluminium value chain, China focus. |
-| `calcd` | 3.0.0 | CUT_OFF | 359 | Chinese national LCD. |
-| `hiq-cesi` | 1.1.0 | CUT_OFF | 359 | Electronics / electrical industry, China. |
-| `carbonminds` | 2.0.2 | CUT_OFF | 231 | Chemicals and plastics, process-level detail. |
-| `agrifootprint` | 7.0 | CUT_OFF | — | Agriculture and food. No LCIA layer — LCI only. |
+| `ecoinvent` | 3.12.0 | CUT_OFF、APOS、CONSEQUENTIAL_LONG、EN_15804 | 240 | 全球参考数据库。覆盖最广,多数已发表研究使用它。 |
+| `hiqlcd` | 1.5.0 | CUT_OFF、CONSEQUENTIAL、EN_15804 | 248 | 中国本土清单。中国生产场景用这个,不要拿欧洲数据代替。 |
+| `hiqlcd-al` | 2.0.0 | CUT_OFF、CONSEQUENTIAL | 359 | 铝产业链,中国为主。 |
+| `calcd` | 3.0.0 | CUT_OFF | 359 | 中国生命周期基础数据库。 |
+| `hiq-cesi` | 1.1.0 | CUT_OFF | 359 | 电子电器行业,中国。 |
+| `carbonminds` | 2.0.2 | CUT_OFF | 231 | 化学品与塑料,工艺级细度。 |
+| `agrifootprint` | 7.0 | CUT_OFF | — | 农业与食品。无 LCIA 层,仅 LCI。 |
 
-## Choosing a database
+## 怎么选库
 
-**Geography drives the answer more than most people expect.** Grid mix alone can move a manufacturing dataset's GWP by 2–5×. Chinese production against a European dataset is a common and serious error — prefer `hiqlcd` / `calcd` / `hiq-cesi` for China, `bafu` / `elcd` / `ef` for Europe, `uslci` / `usda` for the US.
+**地域对结果的影响比多数人预期的大。** 仅电网结构一项就能让制造类数据集的 GWP 差 2–5 倍。拿欧洲数据集代表中国生产是常见且严重的错误 —— 中国优先 `hiqlcd` / `calcd` / `hiq-cesi`,欧洲用 `bafu` / `elcd` / `ef`,美国用 `uslci` / `usda`。
 
-**System model must match the question.**
-- `CUT_OFF` — attributional, recycled material enters burden-free. The default for product carbon footprint and EPD work.
-- `APOS` — allocation at point of substitution. Ecoinvent alternative attributional model.
-- `CONSEQUENTIAL` / `CONSEQUENTIAL_LONG` — marginal effects of a decision. Not interchangeable with cut-off; never mix them in one comparison.
-- `EN_15804` — construction products, EN 15804 module structure (A1-A3, A4-A5, B, C, D).
-- `DEFAULT` — free databases publish a single model; treat as attributional.
+**系统模型必须与问题匹配。**
 
-**LCIA coverage varies a lot.** Databases showing 1 indicator carry GWP only — `aggregate_indicators` for AP/EP/ODP will return empty there, and that is a data limitation, not a tool failure. `agrifootprint` and `recycledplastics` have no LCIA layer at all (LCI only).
+- `CUT_OFF` —— 归因法,再生材料不带上游负担。产品碳足迹与 EPD 的默认选择。
+- `APOS` —— 替代点分配。Ecoinvent 的另一种归因模型。
+- `CONSEQUENTIAL` / `CONSEQUENTIAL_LONG` —— 决策带来的边际影响。与截止法不可互换,同一次对比中绝不能混用。
+- `EN_15804` —— 建材,按 EN 15804 模块结构(A1-A3、A4-A5、B、C、D)。
+- `DEFAULT` —— 免费库只发布单一模型,按归因法理解。
 
-## Known quirks
+**LCIA 覆盖差异很大。** 指标数为 1 的库只有 GWP,在这些库上用 `aggregate_indicators` 查 AP/EP/ODP 会返回空 —— 这是数据侧限制,不是工具故障。`agrifootprint` 和 `recycledplastics` 完全没有 LCIA 层(仅 LCI)。
 
-- **Functional-unit extremes are usually legitimate.** Some datasets are declared per unusual functional units, so raw GWP min/max across a whole database can span many orders of magnitude. Read the reference flow and unit before calling a value an outlier.
-- **`aggregate_indicators` needs the right `source`.** `method_id` is not portable across databases — an Ecoinvent cohort must be aggregated with `source="ecoinvent"`, otherwise the call returns empty.
-- **Version matters for keys.** A `dataset_key` encodes source + version + system model. Keys from an older catalog return in `missing_keys` after a database version bump — re-run search rather than editing the key.
-- **`partial` search status.** The search returned something related but not an exact match. Read the dataset `name` before using it; a "hot rolled coil" result for a "cold rolled sheet" query is a different product.
+## 已知坑
+
+- **功能单位造成的极值通常是合法的。** 部分数据集以不寻常的功能单位声明,所以整库 GWP 的 min/max 会跨越多个数量级。判断某个值是否离群前,先读参考流和单位。
+- **`aggregate_indicators` 的 `source` 必须对。** `method_id` 跨库不通用 —— Ecoinvent 的队列必须用 `source="ecoinvent"` 聚合,否则返回空。
+- **版本影响 key。** `dataset_key` 编码了源 + 版本 + 系统模型。数据库版本升级后,旧目录里的 key 会出现在 `missing_keys` 里 —— 重新检索,不要手改 key。
+- **检索状态 `partial`。** 表示匹配到相关但不精确的结果。使用前先读数据集 `name`:查「冷轧板」返回「热轧卷」是另一种产品。

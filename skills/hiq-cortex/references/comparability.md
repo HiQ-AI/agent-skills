@@ -1,58 +1,58 @@
-# Comparability
+# 可比性
 
-Most wrong LCA answers are not wrong numbers — they are correct numbers compared on incompatible bases. Check these before putting two values side by side.
+多数错误的 LCA 结论并不是数值算错,而是把口径不一致的正确数值放在一起比。把两个数并列之前,先过一遍下面几条。
 
-## The five dimensions
+## 五个维度
 
-| Dimension | Why it breaks comparison |
+| 维度 | 为什么会破坏可比性 |
 |---|---|
-| **Functional unit / reference flow** | 1 kg of sheet vs 1 m² of coated panel vs 1 m³ of concrete are different questions. Convert explicitly or do not compare. |
-| **System model** | Cut-off and consequential answer different questions (attribution vs marginal effect). A delta between them is meaningless. |
-| **System boundary** | Cradle-to-gate (A1-A3) vs cradle-to-grave. EPDs declare modules explicitly — compare A1-A3 to A1-A3. |
-| **Geography** | Grid mix, fuel mix, and technology vintage. Often the single largest driver. |
-| **Database and version** | Different modelling conventions and background data. Cross-database deltas partly measure the databases, not the products. |
+| **功能单位 / 参考流** | 1 kg 板材、1 m² 涂层板、1 m³ 混凝土回答的是不同问题。要么显式换算,要么不比。 |
+| **系统模型** | 截止法和后果法回答的问题不同(归因 vs 边际影响)。两者之间的差值没有意义。 |
+| **系统边界** | 摇篮到大门(A1-A3)与摇篮到坟墓。EPD 会显式声明模块 —— A1-A3 只能和 A1-A3 比。 |
+| **地域** | 电网结构、燃料结构、技术年代。常常是最大的单一影响因素。 |
+| **数据库与版本** | 建模惯例和背景数据不同。跨库的差值里有一部分测的是数据库本身,不是产品。 |
 
-State the basis with every number:
+每个数值都要交代基准:
 
-> 0.0269 kg CO₂e/kWh — BAFU 2025, DEFAULT, CH, low-voltage grid at consumer
+> 0.0269 kg CO₂e/kWh —— BAFU 2025,DEFAULT,CH,低压电网到用户端
 
-## Aggregation results
+## 聚合结果
 
-`aggregate_datasets` and `aggregate_indicators` return a `comparability_note`. **Read it before quoting percentiles.**
+`aggregate_datasets` 和 `aggregate_indicators` 会返回 `comparability_note`。**引用百分位之前先读它。**
 
-- Mixed units or system models in the cohort → the distribution is a magnitude reference only, not a percentile you can quote.
-- `n < 8` → too small for percentiles. Give the range and the count.
-- A cohort spanning many orders of magnitude usually means mixed functional units, not real spread. Narrow the predicate.
+- 队列里单位或系统模型混杂 → 该分布只能作量级参考,不能当百分位引用。
+- `n < 8` → 样本太小,不给百分位。给区间和样本数。
+- 队列跨越多个数量级,通常意味着功能单位混杂,而不是真实离散 —— 收窄谓词。
 
-When positioning a user's own value, the cohort must be built on the same basis as their number. A Chinese plant's steel benchmarked against a European cohort tells them about geography, not performance.
+给用户的数值做定位时,队列必须与他的数值同口径。拿欧洲队列去对标中国工厂的钢材,得到的是地域差异,不是绩效差异。
 
-## Production routes
+## 生产路线
 
-For route-sensitive materials, an "average" value hides the decision:
+对路线敏感的材料,「平均值」会把决策信息抹掉:
 
-| Material | Routes that differ materially |
+| 材料 | 差异显著的路线 |
 |---|---|
-| Steel | BF-BOF (primary) vs EAF (scrap-based) |
-| Aluminium | Primary (electrolysis, grid-dependent) vs recycled |
-| Stainless 304 | Mixed technology vs EAF route |
-| Hydrogen | Grey (SMR) vs blue (with CCS) vs green (electrolysis) |
-| Cement | Clinker factor and alternative fuels |
-| Plastics | Virgin vs mechanical vs chemical recycling |
+| 钢 | 转炉(BF-BOF,原生)与电炉(EAF,废钢) |
+| 铝 | 原生(电解,依赖电网)与再生 |
+| 304 不锈钢 | 混合技术与电炉路线 |
+| 氢 | 灰氢(SMR)、蓝氢(带 CCS)、绿氢(电解) |
+| 水泥 | 熟料系数与替代燃料 |
+| 塑料 | 原生、物理回收、化学回收 |
 
-Search each named route separately, aggregate per route, and present them side by side on one functional unit. Explain what drives the gap (energy source, scrap availability, allocation of recycled content) and under which conditions the recommendation flips. A single averaged number is the wrong deliverable here.
+按路线分别检索、分别聚合,在同一功能单位下并列展示。说明差距来自什么(能源结构、废钢可得性、再生成分的分配方法),以及在什么条件下推荐结论会反转。这类问题给单一平均值是错误的交付物。
 
-## EPD comparison
+## EPD 对比
 
-- `epd_peer_benchmark` counts **one vote per registration number** — multiple variants under one registration cannot inflate the distribution.
-- Always pass `declared_unit`. Comparing per-m³ to per-tonne EPDs produces nonsense.
-- `comparability_note.sufficient: false` (n < 5) → order-of-magnitude reference only.
-- Grid mix, allocation method, and EF version differences widen the spread — a value outside the 1.5× fence is a prompt to check basis first, not automatic evidence of a bad EPD.
+- `epd_peer_benchmark` 按**注册号计一票** —— 同一注册号下的多个变体不会灌水拉偏分布。
+- 必须传 `declared_unit`。拿每 m³ 和每吨的 EPD 比较毫无意义。
+- `comparability_note.sufficient: false`(n < 5)→ 只作量级参考。
+- 电网结构、分配方法、EF 版本差异都会拉宽分布 —— 落在 1.5 倍围栏外只是提示先核对口径,不能直接断定这份 EPD 有问题。
 
-## Proxies
+## 代理数据
 
-When no dataset matches the actual material, a proxy is legitimate **if you say it is one**:
+没有完全匹配的数据集时,用代理数据是可以的,**前提是说明它是代理**:
 
-1. Prefer same material family, same route, different geography over same geography, different material.
-2. State the substitution and its direction of error explicitly ("使用欧洲数据代替中国产地,中国电网碳强度更高,实际值可能偏高").
-3. Never present a proxy as the material's own value.
-4. Never substitute a proxy for a **restricted** value — that is the user's licensing decision, not yours. Show the restriction and the purchase link.
+1. 优先「同材料族、同路线、不同地域」,其次才是「同地域、不同材料」。
+2. 明确说出替代关系和误差方向(例如「用欧洲数据代替中国产地,中国电网碳强度更高,实际值可能偏高」)。
+3. 绝不把代理值当作该材料自身的数值呈现。
+4. **绝不用代理值替代受限数据** —— 那是用户的授权决策,不是你的。如实展示受限状态和开通链接。
