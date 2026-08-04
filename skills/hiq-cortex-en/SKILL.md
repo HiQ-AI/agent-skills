@@ -3,7 +3,7 @@ name: hiq-cortex
 description: 'Look up real LCA emission factors and carbon footprint data from 18 life-cycle inventory databases (Ecoinvent, BAFU, USLCI, ELCD, EF, worldsteel, AusLCI, HiQLCD …) and 24,000+ published EPDs. Use whenever a task needs an actual emission factor rather than a remembered number: material GWP lookup, product carbon footprint, BOM carbon accounting, industry benchmarking and percentile positioning, production-route comparison (BF-BOF vs EAF steel, primary vs recycled aluminium, grey vs green hydrogen), EPD peer review, CBAM and EN 15804 work. Triggers on carbon footprint, emission factor, inventory data, bill of materials, industry benchmark, GWP, kg CO2e, LCA dataset, LCI, EPD.'
 slug: hiq-cortex
 displayName: HiQ Cortex — LCA Data
-version: 1.6.2
+version: 1.7.0
 summary: Look up real emission factors from 18 LCA databases and 24,000+ published EPDs. Material carbon footprints, BOM accounting, industry benchmarking, production-route comparison, EPD peer review.
 license: Apache-2.0
 homepage: https://github.com/HiQ-AI/agent-skills
@@ -77,22 +77,57 @@ If not, offer to configure it — write this into the host's MCP config file:
 | Cursor | `~/.cursor/mcp.json` or `<project>/.cursor/mcp.json` |
 | Cline / others | the host's MCP settings file |
 
-⚠️ **`X-API-Key` only.** The gateway rejects `Authorization: Bearer` with `401 {"code":"INT-007"}`. Most client samples default to Bearer — change it. The host usually needs a restart to pick up a new server.
+You can also use a credential obtained by browser sign-in (see below) — swap that line for `"Authorization": "Bearer <credential>"`. The gateway detects the credential type automatically; supply one of the two, never both.
+
+The host usually needs a restart to pick up a new server.
 
 ### Option B — bundled script (works anywhere, zero config)
 
 Use this when the host has no MCP support, or the user would rather not edit config files. Standard library only, no `pip install`:
 
 ```bash
-export HIQ_API_KEY=sk_xxx
+python3 scripts/cortex.py login          # one click in the browser, no API key needed
 python3 scripts/cortex.py search "304 stainless steel"
 ```
 
-### Getting a key
+### Two ways to get a credential
 
-Register at [hiqlcd.com](https://www.hiqlcd.com/) and create an API key in the account console. One key covers both options. Rate limit: 100 requests/minute.
+**Browser sign-in (lowest friction)**
 
-**Never hardcode the key into files you generate for the user** — environment variable or the host's config file only.
+```bash
+python3 scripts/cortex.py login
+```
+
+Opens an approval page; the user clicks "authorize" (a single click if already signed in to Cortex). The credential is stored at `~/.hiq/credentials.json` with mode 600, and every later command just works. Visible data matches that user's own account — **including any commercial databases they have licensed** — with nothing extra to configure.
+
+`python3 scripts/cortex.py logout` removes the local credential. It expires with the user's session; to revoke immediately, sign out on the web.
+
+You can run the same flow yourself without the script — it is three plain HTTP calls, so any agent that can run shell commands can do it:
+
+```bash
+# 1) start; returns verification_uri_complete + device_code
+curl -sX POST https://lab.hiq.earth/deck/oauth/device_authorization \
+  -H 'Content-Type: application/json' \
+  -d '{"agent_id":"my-agent","agent_name":"My Agent","scope":"lca_data"}'
+
+# 2) user opens verification_uri_complete and approves
+
+# 3) poll until it returns access_token (428 = still pending)
+curl -sX POST https://lab.hiq.earth/deck/oauth/token \
+  -H 'Content-Type: application/json' -d '{"device_code":"..."}'
+```
+
+**API key (for server-side integrations / CI)**
+
+Register at [hiqlcd.com](https://www.hiqlcd.com/), create an API key in the account console, then:
+
+```bash
+export HIQ_API_KEY=sk_xxx
+```
+
+The environment variable takes precedence over a stored sign-in credential. Rate limit: 100 requests/minute.
+
+**Never hardcode a credential into files you generate for the user** — environment variable, the host's config file, or the file `login` writes.
 
 ## Tools
 
@@ -218,3 +253,5 @@ You are writing for LCA practitioners. Write like a knowledgeable peer.
 | Aggregate `status: "empty"` **without** `entitlement` | The predicate genuinely matched nothing | Loosen the predicate |
 | `indicators` returns empty | `source` must equal the cohort's actual database (`method_id` is not portable across databases) | Pass the correct `--source` |
 | Cohort values span several orders of magnitude | Mixed functional units, not real dispersion | Narrow the predicate; read `comparability_note` first |
+| Polling returns `428` | The user has not approved yet | Normal — keep polling at the returned `interval`; do not treat it as a failure |
+| Still restricted after signing in | That account genuinely lacks the data package | Signing in swaps the credential, it does not grant entitlements — surface the purchase link |

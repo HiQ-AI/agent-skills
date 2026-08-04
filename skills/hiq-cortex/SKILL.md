@@ -3,7 +3,7 @@ name: hiq-cortex
 description: '查询真实的 LCA 排放因子与碳足迹数据,覆盖 18 个生命周期清单数据库(Ecoinvent、BAFU、USLCI、ELCD、EF、worldsteel、AusLCI、HiQLCD 等)和 24000+ 已发布 EPD。当任务需要真实排放因子而不是凭记忆给数时使用:物料 GWP 查询、产品碳足迹、BOM 碳核算、行业对标与百分位定位、生产路线对比(转炉钢与电炉钢、原生铝与再生铝、灰氢与绿氢)、EPD 同类审核、CBAM 与 EN 15804 相关工作。触发词:碳足迹、排放因子、清单数据、物料清单、行业对标、碳排、GWP、kg CO2e、emission factor、carbon footprint、LCA dataset、LCI、EPD。'
 slug: hiq-cortex
 displayName: HiQ Cortex — LCA 数据查询
-version: 1.6.2
+version: 1.7.0
 summary: 从 18 个 LCA 数据库和 24000+ 已发布 EPD 查询真实排放因子。物料碳足迹、BOM 碳核算、行业对标定位、生产路线对比、EPD 同类审核。
 license: Apache-2.0
 homepage: https://github.com/HiQ-AI/agent-skills
@@ -77,22 +77,57 @@ tags:
 | Cursor | `~/.cursor/mcp.json` 或 `<项目>/.cursor/mcp.json` |
 | Cline 等 | 该宿主的 MCP 设置文件 |
 
-⚠️ **只支持 `X-API-Key` 这一个 header**。网关会拒绝 `Authorization: Bearer`(返回 `401 {"code":"INT-007"}`)。多数客户端示例默认写 Bearer,务必改掉。配置后宿主通常需要重启才能加载。
+也可以用扫码登录拿到的凭据(见下),把那一行换成 `"Authorization": "Bearer <凭据>"` —— 网关按凭据类型自动识别,二选一即可,不必两个都给。
+
+配置后宿主通常需要重启才能加载。
 
 ### 方式二:内置脚本(任何环境可用,零配置)
 
 宿主不支持 MCP,或用户不愿改配置文件时用这条。仅依赖 Python 标准库,无需 `pip install`:
 
 ```bash
-export HIQ_API_KEY=sk_xxx
+python3 scripts/cortex.py login          # 浏览器点一下授权,无需注册建 key
 python3 scripts/cortex.py search "304 不锈钢"
 ```
 
-### 获取 API key
+### 拿到访问凭据的两条路
 
-在 [hiqlcd.com](https://www.hiqlcd.com/) 注册账号,在控制台创建 API key。两种方式共用同一把 key。限流 100 次/分钟。
+**扫码登录(推荐,门槛最低)**
 
-**绝不要把 key 硬编码进为用户生成的文件** —— 只走环境变量或宿主的配置文件。
+```bash
+python3 scripts/cortex.py login
+```
+
+会打开浏览器授权页,用户点「授权访问」即可(已登录 Cortex 的话就是一次点击)。凭据存在 `~/.hiq/credentials.json`(权限 600),之后所有命令直接可用。可见数据范围与该用户账号一致 —— **包含他已开通的商业数据库**,不必另外配置。
+
+`python3 scripts/cortex.py logout` 删除本机凭据;该凭据随登录态失效,要立即收回请在网页退出登录。
+
+这套流程本身就是三个普通 HTTP 请求,**任何能执行 shell 的 agent 都可以自己跑**,不依赖脚本:
+
+```bash
+# 1) 发起,返回 verification_uri_complete 与 device_code
+curl -sX POST https://lab.hiq.earth/deck/oauth/device_authorization \
+  -H 'Content-Type: application/json' \
+  -d '{"agent_id":"my-agent","agent_name":"我的助手","scope":"lca_data"}'
+
+# 2) 把 verification_uri_complete 给用户,他在浏览器点「授权访问」
+
+# 3) 轮询直到返回 access_token(428 = 尚未授权,继续等)
+curl -sX POST https://lab.hiq.earth/deck/oauth/token \
+  -H 'Content-Type: application/json' -d '{"device_code":"..."}'
+```
+
+**API key(适合服务端集成 / CI)**
+
+在 [hiqlcd.com](https://www.hiqlcd.com/) 注册账号,控制台创建 API key,然后:
+
+```bash
+export HIQ_API_KEY=sk_xxx
+```
+
+环境变量优先于扫码登录存下的凭据。限流 100 次/分钟。
+
+**绝不要把凭据硬编码进为用户生成的文件** —— 只走环境变量、宿主配置文件,或 `login` 落盘的那份。
 
 ## 工具
 
@@ -216,3 +251,5 @@ LCA 查询天然有歧义:同一个「304 不锈钢」在库里有十几条,产�
 | 聚合 `status: "empty"` **不带** `entitlement` | 谓词确实没命中 | 放宽谓词 |
 | `indicators` 返回空 | `source` 必须等于队列实际所在库(`method_id` 跨库不通用) | 传入正确的 `--source` |
 | 队列数值跨越多个数量级 | 功能单位混杂,不是真实离散 | 收窄谓词;先读 `comparability_note` |
+| 轮询授权返回 `428` | 用户还没点授权 | 这是正常状态,按返回的 `interval` 继续轮询,不要当失败 |
+| 授权后仍查不到商业库 | 该账号本就没有那个数据包权益 | 扫码登录只是换凭据,不改变权益;按受限提示给开通链接 |

@@ -25,12 +25,18 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import pathlib
 import re
 import sys
 import urllib.error
 import urllib.request
 
 BASE = os.environ.get("HIQ_API_BASE", "https://x.hiqlcd.com")
+# The device flow lives on deck's own domain (the gateway does not proxy /oauth/*);
+# data queries still go through BASE.
+AUTH_BASE = os.environ.get("HIQ_AUTH_BASE", "https://lab.hiq.earth/deck")
+CRED_PATH = pathlib.Path(os.environ.get("HIQ_CRED_PATH", "")) if os.environ.get("HIQ_CRED_PATH") \
+    else pathlib.Path.home() / ".hiq" / "credentials.json"
 MCP_URL = f"{BASE}/api/cortex/mcp"
 SEARCH_URL = f"{BASE}/api/cortex/search"
 # Search runs a validating workflow upstream; 20-40s is normal, not a hang.
@@ -38,15 +44,34 @@ SEARCH_TIMEOUT = 180
 MCP_TIMEOUT = 120
 
 
-def _key() -> str:
+def _credential() -> tuple[str, str]:
+    """Return (credential, kind). api_key → X-API-Key, sso_token → Authorization.
+
+    Environment variable wins over the credential stored by `login`. If neither
+    exists, print both ways forward rather than guessing or degrading silently.
+    """
     k = os.environ.get("HIQ_API_KEY", "").strip()
-    if not k:
-        sys.exit(
-            "HIQ_API_KEY is not set.\n"
-            "Register at https://www.hiqlcd.com/ and create an API key in the console, then:\n"
-            "  export HIQ_API_KEY=sk_xxx"
-        )
-    return k
+    if k:
+        return k, "api_key"
+    try:
+        data = json.loads(CRED_PATH.read_text())
+        tok = (data.get("access_token") or "").strip()
+        if tok:
+            return tok, str(data.get("kind") or "sso_token")
+    except Exception:
+        pass
+    sys.exit(
+        "No usable credential. Either:\n"
+        "  1) Sign in with a browser (no API key needed): python3 cortex.py login\n"
+        "  2) Use an API key: create one at https://www.hiqlcd.com/ then export HIQ_API_KEY=sk_xxx"
+    )
+
+
+def _auth_header() -> dict:
+    cred, kind = _credential()
+    # The gateway picks the verification mode from the credential type — the
+    # client only has to send one of the two headers.
+    return {"X-API-Key": cred} if kind == "api_key" else {"Authorization": f"Bearer {cred}"}
 
 
 # Cloudflare fronts the API and blocks the default `Python-urllib/3.x` agent with
@@ -58,7 +83,7 @@ _UA = "hiq-cortex-skill/1.0 (+https://www.hiqlcd.com)"
 def _post(url: str, data: bytes, headers: dict, timeout: int) -> str:
     # The gateway authenticates on X-API-Key only; Authorization: Bearer is rejected.
     req = urllib.request.Request(
-        url, data=data, headers={"X-API-Key": _key(), "User-Agent": _UA, **headers}
+        url, data=data, headers={**_auth_header(), "User-Agent": _UA, **headers}
     )
     try:
         with urllib.request.urlopen(req, timeout=timeout) as resp:
@@ -231,6 +256,93 @@ def fmt_epd(res: dict) -> str:
 
 # ── commands ──────────────────────────────────────────────────────────────────
 
+def _auth_post(path: str, payload: dict, timeout: int = 30) -> tuple[int, dict]:
+    """POST for the device flow (no credential yet — cannot reuse _post's auth header)."""
+    req = urllib.request.Request(
+        AUTH_BASE.rstrip("/") + path,
+        data=json.dumps(payload).encode(),
+        headers={"Content-Type": "application/json", "User-Agent": _UA},
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=timeout) as r:
+            return r.status, json.loads(r.read().decode() or "{}")
+    except urllib.error.HTTPError as e:
+        body = e.read().decode("utf-8", "replace")
+        try:
+            return e.code, json.loads(body or "{}")
+        except json.JSONDecodeError:
+            return e.code, {"detail": body[:200]}
+    except urllib.error.URLError as e:
+        sys.exit(f"network error: {e.reason}")
+
+
+def cmd_login(a) -> None:
+    """Browser login: start the device flow, let the user approve, poll, store.
+
+    The authorization page reuses an existing web session, so approving is
+    usually a single click.
+    """
+    import time as _t
+    import webbrowser
+
+    status, rec = _auth_post("/oauth/device_authorization", {
+        "agent_id": a.name, "agent_name": a.name, "scope": "lca_data",
+    })
+    if status >= 400:
+        sys.exit(f"could not start authorization ({status}): {json.dumps(rec, ensure_ascii=False)[:200]}")
+
+    url = rec.get("verification_uri_complete") or rec.get("verification_uri", "")
+    code = rec.get("user_code", "")
+    interval = int(rec.get("interval") or 5)
+    expires = int(rec.get("expires_in") or 600)
+
+    print("Approve this in your browser:", flush=True)
+    print(f"  {url}")
+    print(f"  code: {code}\n", flush=True)
+    if not a.no_browser:
+        try:
+            webbrowser.open(url)
+        except Exception:
+            pass
+
+    print("Waiting for approval… (continues automatically once you approve)", flush=True)
+    deadline = _t.monotonic() + expires
+    while _t.monotonic() < deadline:
+        _t.sleep(interval)
+        status, body = _auth_post("/oauth/token", {"device_code": rec["device_code"]})
+        if status == 428:
+            continue                      # authorization_pending — keep polling
+        if status >= 400:
+            sys.exit(f"authorization failed ({status}): {json.dumps(body, ensure_ascii=False)[:200]}")
+        token = (body.get("access_token") or "").strip()
+        if not token:
+            sys.exit("authorization returned an empty token; please retry.")
+        CRED_PATH.parent.mkdir(parents=True, exist_ok=True)
+        CRED_PATH.write_text(json.dumps({
+            "access_token": token,
+            "kind": "sso_token",
+            "owner": body.get("owner", ""),
+            "scope": body.get("scope", "lca_data"),
+        }, ensure_ascii=False))
+        try:
+            CRED_PATH.chmod(0o600)        # the credential is a session — keep it owner-only
+        except Exception:
+            pass
+        print(f"\n✓ Signed in. Credential stored at {CRED_PATH} (owner-readable only)", flush=True)
+        print("  Try it: python3 cortex.py search \"304 stainless steel\"")
+        return
+    sys.exit("authorization timed out; run login again.")
+
+
+def cmd_logout(_a) -> None:
+    if CRED_PATH.exists():
+        CRED_PATH.unlink()
+        print(f"Removed local credential {CRED_PATH}", flush=True)
+    else:
+        print("No stored credential on this machine.", flush=True)
+    print("Note: this only clears the local file. The credential expires with your session — sign out on the web to revoke it now.")
+
+
 def cmd_search(a) -> dict:
     body = f"query={urllib.parse.quote(a.query)}"
     if a.sources:
@@ -254,6 +366,12 @@ def main() -> None:
     common = argparse.ArgumentParser(add_help=False)
     common.add_argument("--json", action="store_true", help=argparse.SUPPRESS)
     sub = ap.add_subparsers(dest="cmd", required=True, parser_class=lambda **kw: argparse.ArgumentParser(parents=[common], **kw))
+
+    lg = sub.add_parser("login", help="sign in with a browser (no API key needed)")
+    lg.add_argument("--name", default="hiq-cortex-cli", help="name shown on the approval page")
+    lg.add_argument("--no-browser", action="store_true", help="do not open a browser")
+
+    sub.add_parser("logout", help="remove the credential stored on this machine")
 
     s = sub.add_parser("search", help="material name → dataset keys (takes 20-40s)")
     s.add_argument("query")
@@ -295,6 +413,12 @@ def main() -> None:
 
     a = ap.parse_args()
 
+    if a.cmd == "login":
+        cmd_login(a)
+        return
+    if a.cmd == "logout":
+        cmd_logout(a)
+        return
     if a.cmd == "search":
         res, fmt = cmd_search(a), fmt_search
     elif a.cmd == "lookup":
