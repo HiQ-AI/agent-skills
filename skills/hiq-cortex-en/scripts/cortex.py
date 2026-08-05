@@ -32,9 +32,8 @@ import urllib.error
 import urllib.request
 
 BASE = os.environ.get("HIQ_API_BASE", "https://x.hiqlcd.com")
-# The device flow lives on deck's own domain (the gateway does not proxy /oauth/*);
-# data queries still go through BASE.
-AUTH_BASE = os.environ.get("HIQ_AUTH_BASE", "https://lab.hiq.earth/deck")
+# Authorization and data queries share the same host, both under BASE.
+AUTH_BASE = os.environ.get("HIQ_AUTH_BASE", f"{BASE}/api/cortex")
 CRED_PATH = pathlib.Path(os.environ.get("HIQ_CRED_PATH", "")) if os.environ.get("HIQ_CRED_PATH") \
     else pathlib.Path.home() / ".hiq" / "credentials.json"
 MCP_URL = f"{BASE}/api/cortex/mcp"

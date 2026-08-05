@@ -3,7 +3,7 @@ name: hiq-cortex
 description: 'Look up real LCA emission factors and carbon footprint data from 18 life-cycle inventory databases (Ecoinvent, BAFU, USLCI, ELCD, EF, worldsteel, AusLCI, HiQLCD …) and 24,000+ published EPDs. Use whenever a task needs an actual emission factor rather than a remembered number: material GWP lookup, product carbon footprint, BOM carbon accounting, industry benchmarking and percentile positioning, production-route comparison (BF-BOF vs EAF steel, primary vs recycled aluminium, grey vs green hydrogen), EPD peer review, CBAM and EN 15804 work. Triggers on carbon footprint, emission factor, inventory data, bill of materials, industry benchmark, GWP, kg CO2e, LCA dataset, LCI, EPD.'
 slug: hiq-cortex
 displayName: HiQ Cortex — LCA Data
-version: 1.7.0
+version: 1.7.1
 summary: Look up real emission factors from 18 LCA databases and 24,000+ published EPDs. Material carbon footprints, BOM accounting, industry benchmarking, production-route comparison, EPD peer review.
 license: Apache-2.0
 homepage: https://github.com/HiQ-AI/agent-skills
@@ -106,14 +106,14 @@ You can run the same flow yourself without the script — it is three plain HTTP
 
 ```bash
 # 1) start; returns verification_uri_complete + device_code
-curl -sX POST https://lab.hiq.earth/deck/oauth/device_authorization \
+curl -sX POST https://x.hiqlcd.com/api/cortex/oauth/device_authorization \
   -H 'Content-Type: application/json' \
   -d '{"agent_id":"my-agent","agent_name":"My Agent","scope":"lca_data"}'
 
 # 2) user opens verification_uri_complete and approves
 
 # 3) poll until it returns access_token (428 = still pending)
-curl -sX POST https://lab.hiq.earth/deck/oauth/token \
+curl -sX POST https://x.hiqlcd.com/api/cortex/oauth/token \
   -H 'Content-Type: application/json' -d '{"device_code":"..."}'
 ```
 

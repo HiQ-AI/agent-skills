@@ -31,8 +31,8 @@ import urllib.error
 import urllib.request
 
 BASE = os.environ.get("HIQ_API_BASE", "https://x.hiqlcd.com")
-# device flow 走 deck 自身域(网关未代理 /oauth/*);数据查询仍走 BASE 的公网网关。
-AUTH_BASE = os.environ.get("HIQ_AUTH_BASE", "https://lab.hiq.earth/deck")
+# 授权与查数同域,都在 BASE 上。
+AUTH_BASE = os.environ.get("HIQ_AUTH_BASE", f"{BASE}/api/cortex")
 CRED_PATH = pathlib.Path(os.environ.get("HIQ_CRED_PATH", "")) if os.environ.get("HIQ_CRED_PATH") \
     else pathlib.Path.home() / ".hiq" / "credentials.json"
 MCP_URL = f"{BASE}/api/cortex/mcp"
