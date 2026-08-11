@@ -8,10 +8,10 @@ Open [Agent Skills](https://code.claude.com/docs/en/skills) published by [HiQ](h
 |---|---|
 | [`hiq-cortex`](skills/hiq-cortex/) | Look up real LCA emission factors from 18 life-cycle inventory databases (Ecoinvent, BAFU, USLCI, ELCD, EF, worldsteel …) and 24,000+ published EPDs. Material GWP lookup, BOM carbon accounting, industry benchmarking, production-route comparison, EPD peer review. |
 
-Also on [SkillHub](https://skillhub.cn/skills/user_377d1060/hiq-cortex) (WorkBuddy / OpenClaw and variants):
+Also on [SkillHub](https://skillhub.cn/skills/user_377d1060/hiq-cortex-lca) (WorkBuddy / OpenClaw and variants), where the skill is published under the slug `hiq-cortex-lca`:
 
 ```bash
-skillhub install hiq-cortex --dir <your agent's skills dir>
+skillhub install hiq-cortex-lca --dir <your agent's skills dir>
 ```
 
 ## Install
