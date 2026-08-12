@@ -3,7 +3,7 @@ name: lca
 description: '做生命周期评价(LCA)时取真实的清单数据与全套影响评价指标。不只是碳:除 GWP 外还可取酸化(AP)、富营养化(EP)、臭氧消耗(ODP)、水耗(WDP)、资源消耗(ADP)等 LCIA 指标,覆盖 18 个生命周期清单数据库与 24000+ 已发布 EPD。用于完整 LCA 研究、多指标环境评价、生态设计权衡分析、工序级热点识别、行业分布定位。当任务涉及生命周期评价、LCA 研究、清单分析、影响评价、多指标评价、环境热点、ISO 14040/14044 时使用。触发词:LCA、生命周期评价、生命周期评估、清单分析、LCI、影响评价、LCIA、酸化、富营养化、环境影响、ISO 14040。'
 slug: lca
 displayName: LCA 生命周期评价数据与多指标影响评价
-version: 1.0.0
+version: 1.0.1
 summary: 做 LCA 取清单数据与全套 LCIA 指标:GWP 之外还有酸化、富营养化、臭氧消耗、水耗、资源消耗,以及工序级热点与行业分布。
 license: Apache-2.0
 homepage: https://github.com/HiQ-AI/agent-skills
@@ -22,7 +22,7 @@ tags: [LCA, 生命周期评价, LCI, LCIA, 影响评价, 酸化, 富营养化, �
 
 可访问:
 
-- **18 个生命周期清单数据库**,11 个免费。含中国本土数据(HiQLCD 覆盖中国全工业体系、CALCD、电子电器 HiQ-CESI、铝产业链 HiQLCD-AL)与国际主流库(Ecoinvent、BAFU、ELCD、EF、worldsteel、USLCI、AusLCI、CarbonMinds、Agri-footprint)。
+- **18 个生命周期清单数据库**,11 个免费。含中国本土数据(HiQLCD 覆盖中国全工业体系、铝产业链 HiQLCD-AL、汽车行业 CALCD)与国际主流库(Ecoinvent、BAFU、ELCD、EF、worldsteel、USLCI、AusLCI、CarbonMinds、Agri-footprint)。
 - **24000+ 已发布 EPD**(EPDItaly、ECO Platform、EPD Norge)。
 - 口径遵循 ISO 14040/14044 与 GB/T 24040/24044,系统模型覆盖截止法、后果法、APOS、EN 15804。
 
@@ -34,7 +34,7 @@ tags: [LCA, 生命周期评价, LCI, LCIA, 影响评价, 酸化, 富营养化, �
 |---|---|---|
 | 目录层 | 全部 18 库的版本、系统模型、LCIA 覆盖;数据集名称、参考流、单位、地域 | 有效凭据即可 |
 | 免费库数值 | BAFU、ELCD、EF、USLCI、USDA、worldsteel、AusLCI、NEEDS、ozLCI、bioenergiedat、recycledplastics | 任一有效凭据 |
-| 商业库数值 | ecoinvent、HiQLCD、HiQLCD-AL、CALCD、HiQ-CESI、CarbonMinds、Agri-footprint | 需对应数据包权益 |
+| 商业库数值 | ecoinvent、HiQLCD、HiQLCD-AL、CALCD(汽车)、CarbonMinds、Agri-footprint | 需对应数据包权益 |
 
 **LCIA 覆盖各库差别很大** —— 有的库指标数以百计,有的只有 GWP,少数只有 LCI 层没有 LCIA 层。做多指标评价前先看目录层给出的指标覆盖,别在只有 GWP 的库上找酸化。
 

@@ -3,7 +3,7 @@ name: hiq-cortex
 description: 'Look up real LCA emission factors and carbon footprint data from 18 life-cycle inventory databases (Ecoinvent, BAFU, USLCI, ELCD, EF, worldsteel, AusLCI, HiQLCD …) and 24,000+ published EPDs. Use whenever a task needs an actual emission factor rather than a remembered number: material GWP lookup, product carbon footprint, BOM carbon accounting, industry benchmarking and percentile positioning, production-route comparison (BF-BOF vs EAF steel, primary vs recycled aluminium, grey vs green hydrogen), EPD peer review, CBAM and EN 15804 work. Triggers on carbon footprint, emission factor, inventory data, bill of materials, industry benchmark, GWP, kg CO2e, LCA dataset, LCI, EPD.'
 slug: hiq-cortex
 displayName: HiQ Cortex — LCA Data
-version: 1.8.0
+version: 1.8.1
 summary: Look up real emission factors from 18 LCA databases and 24,000+ published EPDs. Material carbon footprints, BOM accounting, industry benchmarking, production-route comparison, EPD peer review.
 license: Apache-2.0
 homepage: https://github.com/HiQ-AI/agent-skills
@@ -20,7 +20,7 @@ This skill connects to **HiQ Cortex** — the LCA data service of [HiQ (海科�
 
 Available:
 
-- **18 life-cycle inventory databases**, 11 of them free. Includes China-specific data (HiQLCD covering China's full industrial system, CALCD, HiQ-CESI for electronics, HiQLCD-AL for the aluminium value chain) alongside international sources (Ecoinvent, BAFU, ELCD, EF, worldsteel, USLCI, AusLCI, CarbonMinds, Agri-footprint …).
+- **18 life-cycle inventory databases**, 11 of them free. Includes China-specific data (HiQLCD covering China's full industrial system, HiQLCD-AL for the aluminium value chain, CALCD for the automotive sector) alongside international sources (Ecoinvent, BAFU, ELCD, EF, worldsteel, USLCI, AusLCI, CarbonMinds, Agri-footprint …).
 - **24,000+ published EPDs** (EPDItaly, ECO Platform, EPD Norge) for peer distributions and outlier review.
 - ISO 14040/14044 and GB/T 24040/24044 conventions; system models covering cut-off, consequential, APOS, and EN 15804.
 
@@ -145,7 +145,7 @@ Only ask when a single dataset must be finalised and the remaining ambiguity wou
 |---|---|---|
 | Catalogue | All 18 databases: inventory, versions, system models, LCIA coverage; dataset names, units, geographies | None |
 | Free database values | GWP and aggregates for BAFU, USLCI, ELCD, EF, AusLCI, NEEDS, ozLCI, worldsteel, USDA, bioenergiedat, recycledplastics | Any valid credential |
-| Commercial database values | GWP and aggregates for Ecoinvent, HiQLCD, HiQLCD-AL, CarbonMinds, Agri-footprint, CALCD, HiQ-CESI | Matching data package |
+| Commercial database values | GWP and aggregates for Ecoinvent, HiQLCD, HiQLCD-AL, CALCD (automotive), CarbonMinds, Agri-footprint | Matching data package |
 
 Data packages and subscription plans are **two separate systems** — upgrading a plan does not unlock a database. When something is restricted, name the database, hand over the `purchase_url`, and offer a free-database path if one answers the same question, labelled as a substitution.
 

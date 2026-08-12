@@ -3,7 +3,7 @@ name: iso14067
 description: '按 ISO 14067 口径做产品碳足迹时取真实的清单数据,并把每个数值的来源交代到可核验的程度。ISO 14067 要求产品碳足迹报告说明功能单位、系统边界、数据来源、数据质量与分配方法 —— 本技能负责其中的数据获取部分:检索匹配数据集、取 GWP 与 LCIA 指标、记录库与版本与系统模型与地域,并区分实测、数据库直取与代理数据。当任务涉及 ISO 14067、产品碳足迹报告、CFP、第三方核验、数据质量说明、GB/T 24067 时使用。触发词:ISO 14067、GB/T 24067、产品碳足迹、CFP、carbon footprint of a product、核验、数据质量、功能单位、系统边界。'
 slug: iso14067
 displayName: ISO 14067 产品碳足迹取数与数据溯源
-version: 1.0.0
+version: 1.0.1
 summary: 按 ISO 14067 口径取产品碳足迹数据:检索匹配、取值、记录库与版本与系统模型与地域,区分实测/直取/代理,供第三方核验。
 license: Apache-2.0
 homepage: https://github.com/HiQ-AI/agent-skills
@@ -28,7 +28,7 @@ tags: [ISO 14067, GB/T 24067, 产品碳足迹, CFP, LCA, 碳足迹, 排放因子
 |---|---|---|
 | 目录层 | 各库版本、系统模型、LCIA 覆盖;数据集名称、参考流、单位、地域 | 有效凭据即可 |
 | 免费库数值 | BAFU、ELCD、EF、USLCI、USDA、worldsteel、AusLCI 等 | 任一有效凭据 |
-| 商业库数值 | ecoinvent、HiQLCD、HiQLCD-AL、CALCD、HiQ-CESI、CarbonMinds、Agri-footprint | 需对应数据包权益 |
+| 商业库数值 | ecoinvent、HiQLCD、HiQLCD-AL、CALCD(汽车)、CarbonMinds、Agri-footprint | 需对应数据包权益 |
 
 受限项如实标注并给 `purchase_url`,**绝不用其他库的值静默替代** —— 核验时数据来源不一致且未说明,是最常见的退回理由。
 

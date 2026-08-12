@@ -1,13 +1,13 @@
 ---
 name: hiqlcd
-description: '查询中国本土生产场景的生命周期清单数据与排放因子。HiQLCD 覆盖中国全工业体系,另有铝产业链(HiQLCD-AL)、电子电器(HiQ-CESI)、CALCD 等专库,遵循 GB/T 24040/24044 与 ISO 14040/14044 口径。中国的电网结构、燃料结构与工艺代际与欧美差异显著,用欧洲数据代表中国生产会系统性失真 —— 中国产地的核算应当用本土清单。当任务涉及中国工厂/中国供应链的碳足迹、国内排放因子取数、中国 BOM 碳核算、GB/T 口径核算、省级电网差异时使用。触发词:HiQLCD、中国本土数据、中国排放因子、国内因子、CALCD、中国电网、GB/T 24040、本土清单、中国碳足迹。'
+description: '查询中国本土生产场景的生命周期清单数据与排放因子。HiQLCD 覆盖中国全工业体系,另有铝产业链专库(HiQLCD-AL)与汽车行业专库(CALCD),遵循 GB/T 24040/24044 与 ISO 14040/14044 口径。中国的电网结构、燃料结构与工艺代际与欧美差异显著,用欧洲数据代表中国生产会系统性失真 —— 中国产地的核算应当用本土清单。当任务涉及中国工厂/中国供应链的碳足迹、国内排放因子取数、中国 BOM 碳核算、GB/T 口径核算、省级电网差异时使用。触发词:HiQLCD、中国本土数据、中国排放因子、国内因子、CALCD、中国电网、GB/T 24040、本土清单、中国碳足迹。'
 slug: hiqlcd
 displayName: HiQLCD 中国本土生命周期清单查询
-version: 1.0.0
-summary: 查询中国本土生产场景的清单数据与排放因子。HiQLCD 覆盖中国全工业体系,另有铝产业链、电子电器、CALCD 等专库,GB/T 24040 口径。
+version: 1.0.1
+summary: 查询中国本土生产场景的清单数据与排放因子。HiQLCD 覆盖中国全工业体系,另有铝产业链与汽车行业专库,GB/T 24040 口径。
 license: Apache-2.0
 homepage: https://github.com/HiQ-AI/agent-skills
-tags: [HiQLCD, 中国本土数据, 中国排放因子, CALCD, LCA, 碳足迹, 生命周期评价, GB/T 24040, 排放因子, LCI]
+tags: [HiQLCD, 中国本土数据, 中国排放因子, 中国清单, LCA, 碳足迹, 生命周期评价, GB/T 24040, 排放因子, LCI]
 ---
 
 # HiQLCD 中国本土生命周期清单查询
@@ -24,8 +24,7 @@ tags: [HiQLCD, 中国本土数据, 中国排放因子, CALCD, LCA, 碳足迹, �
 |---|---|
 | **HiQLCD** | 中国全工业体系 |
 | **HiQLCD-AL** | 铝产业链,中国为主 |
-| **HiQ-CESI** | 电子电器行业,中国 |
-| **CALCD** | 中国生命周期基础数据库 |
+| **CALCD** | 汽车行业专用清单(中汽碳 CATARC × 海科) |
 
 口径遵循 GB/T 24040/24044 与 ISO 14040/14044,系统模型覆盖截止法、后果法、EN 15804。
 
@@ -38,7 +37,7 @@ tags: [HiQLCD, 中国本土数据, 中国排放因子, CALCD, LCA, 碳足迹, �
 | 目录层 | 各库的版本、系统模型、LCIA 覆盖;数据集名称、参考流、单位、地域 | 有效凭据即可 |
 | 数值层 | GWP、LCIA 值、队列分布与百分位 | **需对应数据包权益** |
 
-HiQLCD、HiQLCD-AL、HiQ-CESI、CALCD 都是商业库。**「库里有没有、叫什么、什么口径」免费;「数值是多少」需要权益。**
+HiQLCD、HiQLCD-AL、CALCD 都是商业库。**「库里有没有、叫什么、什么口径」免费;「数值是多少」需要权益。**
 
 无权益时 `lookup` 返回 `restricted: true`、聚合返回 `status: "empty"` 且带 `entitlement`,都含 `purchase_url`。如实说明是哪个库受限、把链接给用户。免费库(BAFU、ELCD、EF、worldsteel、USLCI)可以作为替代路径,但**必须说明这是替代、且不代表中国生产口径** —— 对国内产地而言这是降级方案,不是等价方案。
 
@@ -73,7 +72,7 @@ export HIQ_API_KEY=sk_xxx          # 或用 API key(适合服务端 / CI),优先
 | 非 GWP 的 LCIA 指标 | `aggregate_indicators` | `indicators <keys> --indicator AP --source hiqlcd` |
 | 单数据集工序级热点 | `process_hotspot` | `hotspot <key> --source hiqlcd` |
 
-`--sources` 可传 `HiQLCD,CALCD,HiQ-CESI,HiQLCD-AL` 同时检索多个本土库。
+`--sources` 可传 `HiQLCD,HiQLCD-AL,CALCD` 同时检索多个本土库。
 
 检索是 REST 接口(`POST https://x.hiqlcd.com/api/cortex/search`,SSE 返回,解析 `WorkflowCompleted` 事件的 `content`)。**耗时 20–40 秒属正常**,不要并发重试。
 

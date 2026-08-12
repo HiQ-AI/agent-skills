@@ -3,7 +3,7 @@ name: hiq-cortex
 description: '查询真实的 LCA 排放因子与碳足迹数据,覆盖 18 个生命周期清单数据库(Ecoinvent、BAFU、USLCI、ELCD、EF、worldsteel、AusLCI、HiQLCD 等)和 24000+ 已发布 EPD。当任务需要真实排放因子而不是凭记忆给数时使用:物料 GWP 查询、产品碳足迹、BOM 碳核算、行业对标与百分位定位、生产路线对比(转炉钢与电炉钢、原生铝与再生铝、灰氢与绿氢)、EPD 同类审核、CBAM 与 EN 15804 相关工作。触发词:碳足迹、排放因子、清单数据、物料清单、行业对标、碳排、GWP、kg CO2e、emission factor、carbon footprint、LCA dataset、LCI、EPD。'
 slug: hiq-cortex-lca
 displayName: HiQ Cortex — LCA 数据查询
-version: 1.8.0
+version: 1.8.1
 summary: 从 18 个 LCA 数据库和 24000+ 已发布 EPD 查询真实排放因子。物料碳足迹、BOM 碳核算、行业对标定位、生产路线对比、EPD 同类审核。
 license: Apache-2.0
 homepage: https://github.com/HiQ-AI/agent-skills
@@ -20,7 +20,7 @@ tags: [LCA, 碳足迹, 排放因子, EPD, CBAM, 数据分析, ecoinvent, HiQLCD,
 
 可访问:
 
-- **18 个生命周期清单数据库**,其中 11 个免费。含中国本土数据(HiQLCD 覆盖中国全工业体系、CALCD、电子电器 HiQ-CESI、铝产业链 HiQLCD-AL)与国际主流库(Ecoinvent、BAFU、ELCD、EF、worldsteel、USLCI、AusLCI、CarbonMinds、Agri-footprint 等)。
+- **18 个生命周期清单数据库**,其中 11 个免费。含中国本土数据(HiQLCD 覆盖中国全工业体系、铝产业链 HiQLCD-AL、汽车行业 CALCD)与国际主流库(Ecoinvent、BAFU、ELCD、EF、worldsteel、USLCI、AusLCI、CarbonMinds、Agri-footprint 等)。
 - **24000+ 已发布 EPD**(EPDItaly、ECO Platform、EPD Norge),可做同类分布与离群审核。
 - 遵循 ISO 14040/14044 与 GB/T 24040/24044 口径,系统模型覆盖截止法、后果法、APOS、EN 15804。
 
@@ -145,7 +145,7 @@ curl -sN -X POST https://x.hiqlcd.com/api/cortex/search \
 |---|---|---|
 | 目录层 | 全部 18 个库的清单、版本、系统模型、LCIA 覆盖;数据集名称、单位、地域 | 无需权益 |
 | 免费库数值 | BAFU、USLCI、ELCD、EF、AusLCI、NEEDS、ozLCI、worldsteel、USDA、bioenergiedat、recycledplastics 的 GWP 与聚合统计 | 任一有效 key |
-| 商业库数值 | Ecoinvent、HiQLCD、HiQLCD-AL、CarbonMinds、Agri-footprint、CALCD、HiQ-CESI 的 GWP 与聚合统计 | 需对应数据包权益 |
+| 商业库数值 | ecoinvent、HiQLCD、HiQLCD-AL、CALCD(汽车)、CarbonMinds、Agri-footprint | 需对应数据包权益 |
 
 数据包权益与订阅套餐是**两套独立体系**,升级套餐不会解锁数据库。无权益时告诉用户是哪个库受限、把 `purchase_url` 给他;若免费库能回答同一问题,主动提供这条路径并说明这是替代。
 

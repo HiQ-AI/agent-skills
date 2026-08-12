@@ -3,7 +3,7 @@ name: pcf
 description: '做产品碳足迹(PCF)核算时取真实的清单数据。从 BOM 物料清单出发,逐行匹配生命周期清单数据集、取 GWP、合计到产品层,并把每一项的数据库、版本、系统模型、地域、参考流交代清楚。覆盖 18 个 LCI 数据库与 24000+ 已发布 EPD,支持行业分布定位判断结果是否合理。当任务涉及产品碳足迹、PCF 核算、ISO 14067、BOM 碳排、物料清单碳核算、单位产品碳排放、生态设计选材对比时使用。触发词:PCF、产品碳足迹、ISO 14067、BOM、物料清单、碳核算、单位产品碳排、carbon footprint of products、cradle-to-gate。'
 slug: pcf
 displayName: 产品碳足迹(PCF)核算取数
-version: 1.0.0
+version: 1.0.1
 summary: 从 BOM 出发做产品碳足迹核算:逐行匹配清单数据集、取 GWP、合计到产品层,每一项都可追溯到库、版本、系统模型与地域。
 license: Apache-2.0
 homepage: https://github.com/HiQ-AI/agent-skills
@@ -30,7 +30,7 @@ tags: [PCF, 产品碳足迹, ISO 14067, BOM, 物料清单, 碳核算, LCA, 排�
 |---|---|---|
 | 目录层 | 各库的版本、系统模型、LCIA 覆盖;数据集名称、参考流、单位、地域 | 有效凭据即可 |
 | 免费库数值 | BAFU、ELCD、EF、USLCI、USDA、worldsteel、AusLCI 等的 GWP 与聚合 | 任一有效凭据 |
-| 商业库数值 | ecoinvent、HiQLCD、HiQLCD-AL、CALCD、HiQ-CESI、CarbonMinds、Agri-footprint | 需对应数据包权益 |
+| 商业库数值 | ecoinvent、HiQLCD、HiQLCD-AL、CALCD(汽车)、CarbonMinds、Agri-footprint | 需对应数据包权益 |
 
 一份 BOM 里通常几种情况混着:部分物料免费库就能覆盖,部分要商业库。**受限项如实标注,不要用免费库的值悄悄顶上去** —— 一份混了口径又没标注的 BOM 核算表,后面没人能复核。
 
