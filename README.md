@@ -65,10 +65,6 @@ export HIQ_API_KEY=sk_xxx
 - Scripts use the Python standard library only — no `pip install`.
 - Issues and contributions welcome via GitHub issues.
 
-## License
-
-[Apache-2.0](LICENSE)
-
 ## Repo layout
 
 ```
@@ -81,3 +77,7 @@ scripts/sync-shared.sh       # run after editing the shared client, then commit 
 Each package is deliberately thin: how to call, what to pass, how to read the response. Domain
 judgement — translating material names, identifying production routes, ranking and scoring
 candidates — runs server-side, so it stays current without republishing skills.
+
+## License
+
+[Apache-2.0](LICENSE)
