@@ -12,6 +12,11 @@ Open [Agent Skills](https://code.claude.com/docs/en/skills) published by [HiQ](h
 | [`cbam`](skills/cbam/) | Pull traceable inventory data for CBAM reporting across the six covered categories — steel, aluminium, cement, fertiliser, electricity, hydrogen. | `cbam` |
 | [`pcf`](skills/pcf/) | Product carbon footprint accounting from a BOM: match each line to a dataset, pull GWP, roll up to product level, keep every line auditable. | `pcf` |
 | [`en15804`](skills/en15804/) | EN 15804 construction-product work: published EPD search, peer distributions and outlier fences by declared unit and module. | `en15804` |
+| [`lca`](skills/lca/) | Full LCA data work — not just carbon: acidification, eutrophication, ozone depletion, water and resource use, plus process-level hotspots. | `lca` |
+| [`scope3`](skills/scope3/) | Scope 3 supply-chain accounting: match a purchasing list line by line, keep every row traceable for CDP / ISSB / SBTi reporting. | `scope3` |
+| [`iso14067`](skills/iso14067/) | ISO 14067 product carbon footprints: pull data and record its provenance to the level a third-party verifier expects. | `iso14067` |
+| [`carbonminds`](skills/carbonminds/) | Process-level inventory data for chemicals and polymers — distinguish synthesis routes, feedstock origin, and geography. | `carbonminds` |
+| [`calcd`](skills/calcd/) | CALCD, the Chinese life-cycle reference database, under GB/T 24040 conventions. | `calcd` |
 
 All of them are on [SkillHub](https://skillhub.cn/) (WorkBuddy / OpenClaw and variants):
 
@@ -24,7 +29,7 @@ skillhub install <slug> --dir <your agent's skills dir>
 With [`npx skills`](https://github.com/vercel-labs/skills):
 
 ```bash
-npx skills add HiQ-AI/agent-skills --skill hiq-cortex     # or ecoinvent / hiqlcd / cbam / pcf / en15804
+npx skills add HiQ-AI/agent-skills --skill hiq-cortex     # or lca / ecoinvent / hiqlcd / calcd / carbonminds / cbam / pcf / scope3 / iso14067 / en15804
 ```
 
 Or copy the skill directory into your host's skills folder:
