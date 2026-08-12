@@ -1,6 +1,6 @@
 # HiQ Agent Skills
 
-Open [Agent Skills](https://code.claude.com/docs/en/skills) published by [HiQ](https://www.hiqlcd.com/) for LCA and carbon-footprint work. Each skill is a plain `SKILL.md` plus supporting scripts and references, and works in any host that loads Agent Skills — WorkBuddy, Claude Code, Cursor, Cline, Codex, and others.
+Open [Agent Skills](https://code.claude.com/docs/en/skills) published by [HiQ](https://www.hiqlcd.com/) for LCA and carbon-footprint work. Each skill is a plain `SKILL.md` plus a dependency-free Python client, and works in any host that loads Agent Skills — WorkBuddy, Claude Code, Cursor, Cline, Codex, and others.
 
 ## Skills
 
@@ -42,7 +42,13 @@ Or copy the skill directory into your host's skills folder:
 
 ## Getting data access
 
-The LCA skill talks to the HiQ Cortex API. Register at [hiqlcd.com](https://www.hiqlcd.com/) and create an API key in the account console, then either export it:
+These skills talk to the HiQ Cortex API. The quickest way in is browser sign-in — no registration, no key to create:
+
+```bash
+python3 scripts/cortex.py login
+```
+
+One click on the authorization page stores a credential in `~/.hiq/credentials.json` (mode 600); the visible data scope matches that account. For server-side use or CI, register at [hiqlcd.com](https://www.hiqlcd.com/), create an API key in the account console, and export it instead:
 
 ```bash
 export HIQ_API_KEY=sk_xxx
