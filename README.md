@@ -17,6 +17,10 @@ Open [Agent Skills](https://code.claude.com/docs/en/skills) published by [HiQ](h
 | [`iso14067`](skills/iso14067/) | ISO 14067 product carbon footprints: pull data and record its provenance to the level a third-party verifier expects. | `iso14067` |
 | [`carbonminds`](skills/carbonminds/) | Process-level inventory data for chemicals and polymers — distinguish synthesis routes, feedstock origin, and geography. | `carbonminds` |
 | [`calcd`](skills/calcd/) | CALCD, the Chinese life-cycle reference database, under GB/T 24040 conventions. | `calcd` |
+| [`ghg-protocol`](skills/ghg-protocol/) | Corporate GHG accounting: emission factors for scope 1 fuels, scope 2 electricity and heat, and scope 3 upstream, each traceable. | `ghg-protocol` |
+| [`pef`](skills/pef/) | EU Product Environmental Footprint: EF reference-package datasets and the full set of impact categories, not just carbon. | `pef` |
+| [`battery-passport`](skills/battery-passport/) | Battery passport and battery carbon footprint: cathode, anode, electrolyte, separator, current collectors, cell assembly. | `battery-passport` |
+| [`hiqlcd-al`](skills/hiqlcd-al/) | Aluminium value chain — alumina, smelting, casting, extrusion, die casting, and recycled aluminium, cut-off and consequential. | `hiqlcd-al` |
 
 All of them are on [SkillHub](https://skillhub.cn/) (WorkBuddy / OpenClaw and variants):
 
@@ -29,7 +33,9 @@ skillhub install <slug> --dir <your agent's skills dir>
 With [`npx skills`](https://github.com/vercel-labs/skills):
 
 ```bash
-npx skills add HiQ-AI/agent-skills --skill hiq-cortex     # or lca / ecoinvent / hiqlcd / calcd / carbonminds / cbam / pcf / scope3 / iso14067 / en15804
+npx skills add HiQ-AI/agent-skills --skill hiq-cortex
+# also: lca · ecoinvent · hiqlcd · hiqlcd-al · calcd · carbonminds · cbam · pef · pcf · scope3
+#       iso14067 · en15804 · ghg-protocol · battery-passport
 ```
 
 Or copy the skill directory into your host's skills folder:
