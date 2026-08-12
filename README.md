@@ -4,14 +4,19 @@ Open [Agent Skills](https://code.claude.com/docs/en/skills) published by [HiQ](h
 
 ## Skills
 
-| Skill | What it does |
-|---|---|
-| [`hiq-cortex`](skills/hiq-cortex/) | Look up real LCA emission factors from 18 life-cycle inventory databases (Ecoinvent, BAFU, USLCI, ELCD, EF, worldsteel …) and 24,000+ published EPDs. Material GWP lookup, BOM carbon accounting, industry benchmarking, production-route comparison, EPD peer review. |
+| Skill | What it does | SkillHub slug |
+|---|---|---|
+| [`hiq-cortex`](skills/hiq-cortex/) | Look up real LCA emission factors from 18 life-cycle inventory databases (Ecoinvent, BAFU, USLCI, ELCD, EF, worldsteel …) and 24,000+ published EPDs. Material GWP lookup, BOM carbon accounting, industry benchmarking, production-route comparison, EPD peer review. | `hiq-cortex-lca` |
+| [`ecoinvent`](skills/ecoinvent/) | Find the right ecoinvent dataset and read its conventions — system model, geography, reference flow, version — and state the basis behind every number. | `ecoinvent` |
+| [`hiqlcd`](skills/hiqlcd/) | China-specific inventory data (HiQLCD, HiQLCD-AL, HiQ-CESI, CALCD) for production located in China, under GB/T 24040 conventions. | `hiqlcd` |
+| [`cbam`](skills/cbam/) | Pull traceable inventory data for CBAM reporting across the six covered categories — steel, aluminium, cement, fertiliser, electricity, hydrogen. | `cbam` |
+| [`pcf`](skills/pcf/) | Product carbon footprint accounting from a BOM: match each line to a dataset, pull GWP, roll up to product level, keep every line auditable. | `pcf` |
+| [`en15804`](skills/en15804/) | EN 15804 construction-product work: published EPD search, peer distributions and outlier fences by declared unit and module. | `en15804` |
 
-Also on [SkillHub](https://skillhub.cn/skills/user_377d1060/hiq-cortex-lca) (WorkBuddy / OpenClaw and variants), where the skill is published under the slug `hiq-cortex-lca`:
+All of them are on [SkillHub](https://skillhub.cn/) (WorkBuddy / OpenClaw and variants):
 
 ```bash
-skillhub install hiq-cortex-lca --dir <your agent's skills dir>
+skillhub install <slug> --dir <your agent's skills dir>
 ```
 
 ## Install
@@ -19,7 +24,7 @@ skillhub install hiq-cortex-lca --dir <your agent's skills dir>
 With [`npx skills`](https://github.com/vercel-labs/skills):
 
 ```bash
-npx skills add HiQ-AI/agent-skills --skill hiq-cortex
+npx skills add HiQ-AI/agent-skills --skill hiq-cortex     # or ecoinvent / hiqlcd / cbam / pcf / en15804
 ```
 
 Or copy the skill directory into your host's skills folder:
@@ -63,3 +68,16 @@ export HIQ_API_KEY=sk_xxx
 ## License
 
 [Apache-2.0](LICENSE)
+
+## Repo layout
+
+```
+skills/_shared/cortex.py     # single source of truth for the HTTP client
+skills/<name>/SKILL.md       # per-skill instructions
+skills/<name>/scripts/       # synced copy of the client (committed — `npx skills` installs from the repo)
+scripts/sync-shared.sh       # run after editing the shared client, then commit every package
+```
+
+Each package is deliberately thin: how to call, what to pass, how to read the response. Domain
+judgement — translating material names, identifying production routes, ranking and scoring
+candidates — runs server-side, so it stays current without republishing skills.
