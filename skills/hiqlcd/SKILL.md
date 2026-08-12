@@ -2,8 +2,8 @@
 name: hiqlcd
 description: '查询中国本土生产场景的生命周期清单数据与排放因子。HiQLCD 覆盖中国全工业体系,另有铝产业链专库(HiQLCD-AL)与汽车行业专库(CALCD),遵循 GB/T 24040/24044 与 ISO 14040/14044 口径。中国的电网结构、燃料结构与工艺代际与欧美差异显著,用欧洲数据代表中国生产会系统性失真 —— 中国产地的核算应当用本土清单。当任务涉及中国工厂/中国供应链的碳足迹、国内排放因子取数、中国 BOM 碳核算、GB/T 口径核算、省级电网差异时使用。触发词:HiQLCD、中国本土数据、中国排放因子、国内因子、CALCD、中国电网、GB/T 24040、本土清单、中国碳足迹。'
 slug: hiqlcd
-displayName: HiQLCD 中国本土生命周期清单查询
-version: 1.1.0
+displayName: 中国本土排放因子 —— HiQLCD 生命周期清单查询
+version: 1.2.0
 summary: 查询中国本土生产场景的清单数据与排放因子。HiQLCD 覆盖中国全工业体系,另有铝产业链与汽车行业专库,GB/T 24040 口径。
 license: Apache-2.0
 homepage: https://github.com/HiQ-AI/agent-skills
