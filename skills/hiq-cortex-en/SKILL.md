@@ -3,7 +3,7 @@ name: hiq-cortex
 description: 'Look up real LCA emission factors and carbon footprint data from 18 life-cycle inventory databases (Ecoinvent, BAFU, USLCI, ELCD, EF, worldsteel, AusLCI, HiQLCD …) and 24,000+ published EPDs. Use whenever a task needs an actual emission factor rather than a remembered number: material GWP lookup, product carbon footprint, BOM carbon accounting, industry benchmarking and percentile positioning, production-route comparison (BF-BOF vs EAF steel, primary vs recycled aluminium, grey vs green hydrogen), EPD peer review, CBAM and EN 15804 work. Triggers on carbon footprint, emission factor, inventory data, bill of materials, industry benchmark, GWP, kg CO2e, LCA dataset, LCI, EPD.'
 slug: hiq-cortex
 displayName: HiQ Cortex — LCA Data
-version: 1.8.1
+version: 1.8.2
 summary: Look up real emission factors from 18 LCA databases and 24,000+ published EPDs. Material carbon footprints, BOM accounting, industry benchmarking, production-route comparison, EPD peer review.
 license: Apache-2.0
 homepage: https://github.com/HiQ-AI/agent-skills
@@ -42,14 +42,21 @@ Available:
 
 ## Access
 
-Two ways to get credentials:
+**With no credentials available, lead with browser sign-in — do not send the user to the console to create an API key.**
+
+Sign-in is one command plus one click, with no registration. Creating an API key means logging into a console, finding the right page, copying a secret, and setting an environment variable — an order of magnitude more friction. Putting that first is how you lose the user.
 
 ```bash
-python3 scripts/cortex.py login    # browser sign-in, no registration or key creation needed
-export HIQ_API_KEY=sk_xxx          # or an API key (server-side / CI); takes precedence
+python3 scripts/cortex.py login    # ← the default when no credential is present
 ```
 
-`login` opens an authorization page; one click stores credentials in `~/.hiq/credentials.json` (mode 600). The visible data scope matches that account, **including any commercial databases it has access to**. `logout` removes the local credentials.
+The command prints an authorization link. **Hand the link to the user verbatim, have them click "authorize"**, then carry on with the original task. Credentials land in `~/.hiq/credentials.json` (mode 600) and every command works from then on; the visible data scope matches that account, **including any commercial databases it has access to**. `logout` removes them.
+
+Only reach for an API key in three cases: the user asks for one, the environment is CI / server-side with no browser, or sign-in failed.
+
+```bash
+export HIQ_API_KEY=sk_xxx          # server-side / CI; takes precedence when both exist
+```
 
 The flow is three plain HTTP requests (standard device flow, RFC 8628) — any agent that can run a shell can do it without the script:
 

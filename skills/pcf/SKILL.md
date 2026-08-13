@@ -3,7 +3,7 @@ name: pcf
 description: '做产品碳足迹(PCF)核算时取真实的清单数据。从 BOM 物料清单出发,逐行匹配生命周期清单数据集、取 GWP、合计到产品层,并把每一项的数据库、版本、系统模型、地域、参考流交代清楚。覆盖 18 个 LCI 数据库与 24000+ 已发布 EPD,支持行业分布定位判断结果是否合理。当任务涉及产品碳足迹、PCF 核算、ISO 14067、BOM 碳排、物料清单碳核算、单位产品碳排放、生态设计选材对比时使用。触发词:PCF、产品碳足迹、ISO 14067、BOM、物料清单、碳核算、单位产品碳排、carbon footprint of products、cradle-to-gate。'
 slug: pcf
 displayName: 产品碳足迹(PCF)核算取数
-version: 1.0.1
+version: 1.0.2
 summary: 从 BOM 出发做产品碳足迹核算:逐行匹配清单数据集、取 GWP、合计到产品层,每一项都可追溯到库、版本、系统模型与地域。
 license: Apache-2.0
 homepage: https://github.com/HiQ-AI/agent-skills
@@ -45,9 +45,24 @@ tags: [PCF, 产品碳足迹, ISO 14067, BOM, 物料清单, 碳核算, LCA, 排�
 
 ## 接入
 
+**没有凭据时,第一句话就给扫码登录 —— 不要让用户去控制台建 API key。**
+
+扫码是「跑一条命令 + 浏览器点一下」,无需注册;建 API key 要登录控制台、找入口、
+复制粘贴、设环境变量,门槛高出一个量级。把后者摆在第一步会直接劝退用户。
+
 ```bash
-python3 scripts/cortex.py login    # 扫码登录:浏览器点一次授权,无需注册建 key
-export HIQ_API_KEY=sk_xxx          # 或用 API key(适合服务端 / CI),优先级更高
+python3 scripts/cortex.py login      # ← 缺凭据时默认走这条
+```
+
+命令会打印一个授权链接。**把链接原样给用户,让他点「授权访问」**,然后继续原来的任务 ——
+凭据落在 `~/.hiq/credentials.json`(权限 600),之后所有命令直接可用,可见数据范围与
+该账号一致(**包含他已开通的商业数据库**)。
+
+只在这三种情况下才提 API key:用户自己说要用 key、运行在 CI / 服务端无浏览器环境、
+或扫码登录失败。
+
+```bash
+export HIQ_API_KEY=sk_xxx            # 服务端 / CI 用;同时存在时优先于扫码凭据
 ```
 
 宿主支持 MCP 时优先用 MCP —— 若当前会话已有 `lookup_datasets`、`aggregate_datasets` 等工具就直接用;没有则把 `https://x.hiqlcd.com/api/cortex/mcp` 配进宿主的 MCP 配置(header 用 `X-API-Key`,或用扫码登录凭据的 `Authorization: Bearer`),配置方式见 [README](https://github.com/HiQ-AI/agent-skills)。

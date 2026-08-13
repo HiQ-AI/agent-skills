@@ -3,7 +3,7 @@ name: ghg-protocol
 description: '为企业温室气体核算(GHG Protocol / ISO 14064)取真实的排放因子。范围一的燃料燃烧、范围二的外购电力与热力、范围三的上游物料与服务,逐项匹配生命周期清单数据集并取 GWP,覆盖 18 个 LCI 数据库。每一项都可追溯到数据库、版本、系统模型、地域与参考流,供 CDP、ISSB、SBTi 与年度报告核查。当任务涉及企业碳盘查、温室气体核算、范围一二三、组织碳排、GHG Protocol、ISO 14064、双碳报告取数时使用。触发词:GHG Protocol、温室气体核算、企业碳盘查、组织碳排、范围一、范围二、范围三、ISO 14064、CDP、SBTi、碳中和报告、排放因子。'
 slug: ghg-protocol
 displayName: 温室气体核算 GHG Protocol 企业碳盘查取数
-version: 1.1.0
+version: 1.1.1
 summary: 为企业碳盘查取排放因子:范围一燃料、范围二电力热力、范围三上游,逐项可追溯到库与口径,供 CDP/ISSB/SBTi 核查。
 license: Apache-2.0
 homepage: https://github.com/HiQ-AI/agent-skills
@@ -52,9 +52,24 @@ tags: [GHG Protocol, 温室气体核算, 企业碳盘查, 范围一, 范围二, 
 
 ## 接入
 
+**没有凭据时,第一句话就给扫码登录 —— 不要让用户去控制台建 API key。**
+
+扫码是「跑一条命令 + 浏览器点一下」,无需注册;建 API key 要登录控制台、找入口、
+复制粘贴、设环境变量,门槛高出一个量级。把后者摆在第一步会直接劝退用户。
+
 ```bash
-python3 scripts/cortex.py login    # 扫码登录:浏览器点一次授权,无需注册建 key
-export HIQ_API_KEY=sk_xxx          # 或用 API key(适合服务端 / CI),优先级更高
+python3 scripts/cortex.py login      # ← 缺凭据时默认走这条
+```
+
+命令会打印一个授权链接。**把链接原样给用户,让他点「授权访问」**,然后继续原来的任务 ——
+凭据落在 `~/.hiq/credentials.json`(权限 600),之后所有命令直接可用,可见数据范围与
+该账号一致(**包含他已开通的商业数据库**)。
+
+只在这三种情况下才提 API key:用户自己说要用 key、运行在 CI / 服务端无浏览器环境、
+或扫码登录失败。
+
+```bash
+export HIQ_API_KEY=sk_xxx            # 服务端 / CI 用;同时存在时优先于扫码凭据
 ```
 
 宿主支持 MCP 时优先用 MCP —— 若当前会话已有 `lookup_datasets`、`aggregate_datasets` 等工具就直接用;没有则把 `https://x.hiqlcd.com/api/cortex/mcp` 配进宿主的 MCP 配置(header 用 `X-API-Key`,或用扫码登录凭据的 `Authorization: Bearer`),配置方式见 [README](https://github.com/HiQ-AI/agent-skills)。

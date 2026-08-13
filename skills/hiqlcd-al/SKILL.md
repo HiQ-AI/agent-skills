@@ -3,7 +3,7 @@ name: hiqlcd-al
 description: '查询铝工业的生命周期清单数据。HiQLCD-AL 是中国有色金属工业协会与海科数据共建的铝工业数据库(以中国产业链为主),从氧化铝、电解铝到铸轧、挤压、压铸与再生铝,支持截止法与后果法两种系统模型。铝是电力密集型材料,原生与再生、不同电网结构下的碳足迹差异极大,用通用库的"铝"平均值做选材或减排决策会得出错误结论。当任务涉及铝材碳足迹、电解铝、原生铝与再生铝对比、铝型材、铝合金压铸件、铝箔、CBAM 铝品类时使用。触发词:HiQLCD-AL、铝工业数据库、有色金属工业协会、铝、电解铝、原生铝、再生铝、铝合金、铝型材、铝箔、压铸铝、氧化铝、铝碳足迹。'
 slug: hiqlcd-al
 displayName: 铝工业数据库 HiQLCD-AL(中国有色金属工业协会 × 海科)
-version: 1.2.0
+version: 1.2.1
 summary: 查询铝工业清单数据,中国有色金属工业协会与海科数据共建。氧化铝、预焙阳极、电解铝、铝加工产品,截止法与后果法双模型。
 license: Apache-2.0
 homepage: https://github.com/HiQ-AI/agent-skills
@@ -47,9 +47,24 @@ HiQLCD-AL 是商业库。**「库里有没有这道工序、叫什么、什么�
 
 ## 接入
 
+**没有凭据时,第一句话就给扫码登录 —— 不要让用户去控制台建 API key。**
+
+扫码是「跑一条命令 + 浏览器点一下」,无需注册;建 API key 要登录控制台、找入口、
+复制粘贴、设环境变量,门槛高出一个量级。把后者摆在第一步会直接劝退用户。
+
 ```bash
-python3 scripts/cortex.py login    # 扫码登录:浏览器点一次授权,无需注册建 key
-export HIQ_API_KEY=sk_xxx          # 或用 API key(适合服务端 / CI),优先级更高
+python3 scripts/cortex.py login      # ← 缺凭据时默认走这条
+```
+
+命令会打印一个授权链接。**把链接原样给用户,让他点「授权访问」**,然后继续原来的任务 ——
+凭据落在 `~/.hiq/credentials.json`(权限 600),之后所有命令直接可用,可见数据范围与
+该账号一致(**包含他已开通的商业数据库**)。
+
+只在这三种情况下才提 API key:用户自己说要用 key、运行在 CI / 服务端无浏览器环境、
+或扫码登录失败。
+
+```bash
+export HIQ_API_KEY=sk_xxx            # 服务端 / CI 用;同时存在时优先于扫码凭据
 ```
 
 宿主支持 MCP 时优先用 MCP —— 若当前会话已有 `lookup_datasets`、`aggregate_datasets` 等工具就直接用;没有则把 `https://x.hiqlcd.com/api/cortex/mcp` 配进宿主的 MCP 配置(header 用 `X-API-Key`,或用扫码登录凭据的 `Authorization: Bearer`),配置方式见 [README](https://github.com/HiQ-AI/agent-skills)。

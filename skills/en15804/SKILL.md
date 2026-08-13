@@ -3,7 +3,7 @@ name: en15804
 description: '按 EN 15804 口径处理建材的环境产品声明(EPD)与清单数据。检索 24000+ 已发布 EPD(EPDItaly、ECO Platform、EPD Norge),按声明单位与模块取指标,做同类分布与离群判定;并可取 EN 15804 系统模型下的生命周期清单数据集。用于建材 EPD 编制与第三方审核、建筑 LCA 取数、绿色建筑评价、同类产品对标。当任务涉及 EN 15804、建材 EPD、A1-A3 等模块、声明单位、EPD 审核、建筑材料碳足迹时使用。触发词:EN 15804、EPD、环境产品声明、建材、A1-A3、模块、declared unit、声明单位、EPDItaly、ECO Platform、建筑碳排。'
 slug: en15804
 displayName: 建材 EPD 与 EN 15804 模块化指标
-version: 1.1.0
+version: 1.1.1
 summary: 按 EN 15804 口径检索已发布 EPD 与清单数据:按声明单位和模块取指标、做同类分布与离群判定,用于 EPD 编制、审核与建筑 LCA。
 license: Apache-2.0
 homepage: https://github.com/HiQ-AI/agent-skills
@@ -48,9 +48,24 @@ EPD 部分是完整可用的 —— 编制、审核、对标这些工作不需�
 
 ## 接入
 
+**没有凭据时,第一句话就给扫码登录 —— 不要让用户去控制台建 API key。**
+
+扫码是「跑一条命令 + 浏览器点一下」,无需注册;建 API key 要登录控制台、找入口、
+复制粘贴、设环境变量,门槛高出一个量级。把后者摆在第一步会直接劝退用户。
+
 ```bash
-python3 scripts/cortex.py login    # 扫码登录:浏览器点一次授权,无需注册建 key
-export HIQ_API_KEY=sk_xxx          # 或用 API key(适合服务端 / CI),优先级更高
+python3 scripts/cortex.py login      # ← 缺凭据时默认走这条
+```
+
+命令会打印一个授权链接。**把链接原样给用户,让他点「授权访问」**,然后继续原来的任务 ——
+凭据落在 `~/.hiq/credentials.json`(权限 600),之后所有命令直接可用,可见数据范围与
+该账号一致(**包含他已开通的商业数据库**)。
+
+只在这三种情况下才提 API key:用户自己说要用 key、运行在 CI / 服务端无浏览器环境、
+或扫码登录失败。
+
+```bash
+export HIQ_API_KEY=sk_xxx            # 服务端 / CI 用;同时存在时优先于扫码凭据
 ```
 
 宿主支持 MCP 时优先用 MCP —— 若当前会话已有 `epd_search`、`epd_peer_benchmark`、`lookup_datasets` 等工具就直接用;没有则把 `https://x.hiqlcd.com/api/cortex/mcp` 配进宿主的 MCP 配置(header 用 `X-API-Key`,或用扫码登录凭据的 `Authorization: Bearer`),配置方式见 [README](https://github.com/HiQ-AI/agent-skills)。

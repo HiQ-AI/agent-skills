@@ -3,7 +3,7 @@ name: battery-passport
 description: '为电池护照与电池碳足迹取真实的生命周期清单数据。欧盟新电池法要求动力电池与工业电池申报碳足迹并在数字电池护照中披露材料与供应链信息 —— 本技能负责其中的数据获取:正极与负极材料、电解液、隔膜、集流体、电芯组装与外壳的清单数据集匹配与 GWP 取值,以及回收料成分的处理口径,每一项都可追溯到数据库、版本、系统模型与地域。当任务涉及电池护照、电池碳足迹、新电池法、动力电池碳排、正极材料、锂电材料、电芯碳足迹时使用。触发词:电池护照、battery passport、新电池法、EU Battery Regulation、动力电池、电池碳足迹、正极材料、负极材料、电解液、锂电、磷酸铁锂、三元材料。'
 slug: battery-passport
 displayName: 电池护照与电池碳足迹数据
-version: 1.1.0
+version: 1.1.1
 summary: 为电池护照与电池碳足迹取清单数据:正负极材料、电解液、隔膜、集流体、电芯组装逐项匹配,每项可追溯到库与口径。
 license: Apache-2.0
 homepage: https://github.com/HiQ-AI/agent-skills
@@ -47,9 +47,24 @@ tags: [电池护照, battery-passport, 新电池法, 动力电池, 电池碳足�
 
 ## 接入
 
+**没有凭据时,第一句话就给扫码登录 —— 不要让用户去控制台建 API key。**
+
+扫码是「跑一条命令 + 浏览器点一下」,无需注册;建 API key 要登录控制台、找入口、
+复制粘贴、设环境变量,门槛高出一个量级。把后者摆在第一步会直接劝退用户。
+
 ```bash
-python3 scripts/cortex.py login    # 扫码登录:浏览器点一次授权,无需注册建 key
-export HIQ_API_KEY=sk_xxx          # 或用 API key(适合服务端 / CI),优先级更高
+python3 scripts/cortex.py login      # ← 缺凭据时默认走这条
+```
+
+命令会打印一个授权链接。**把链接原样给用户,让他点「授权访问」**,然后继续原来的任务 ——
+凭据落在 `~/.hiq/credentials.json`(权限 600),之后所有命令直接可用,可见数据范围与
+该账号一致(**包含他已开通的商业数据库**)。
+
+只在这三种情况下才提 API key:用户自己说要用 key、运行在 CI / 服务端无浏览器环境、
+或扫码登录失败。
+
+```bash
+export HIQ_API_KEY=sk_xxx            # 服务端 / CI 用;同时存在时优先于扫码凭据
 ```
 
 宿主支持 MCP 时优先用 MCP —— 若当前会话已有 `lookup_datasets`、`aggregate_datasets` 等工具就直接用;没有则把 `https://x.hiqlcd.com/api/cortex/mcp` 配进宿主的 MCP 配置(header 用 `X-API-Key`,或用扫码登录凭据的 `Authorization: Bearer`),配置方式见 [README](https://github.com/HiQ-AI/agent-skills)。

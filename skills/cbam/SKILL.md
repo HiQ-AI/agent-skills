@@ -3,7 +3,7 @@ name: cbam
 description: '为 CBAM(欧盟碳边境调节机制)申报取真实的生命周期清单数据。CBAM 覆盖钢铁、铝、水泥、化肥、电力、氢六个品类,申报要求逐项交代内含排放的数据来源与口径,不能凭经验值填报。本技能负责按品类检索对应的清单数据集、取 GWP 与基准、做同类分布定位,并把数据库、版本、系统模型、地域、参考流一并交代清楚,供申报文件追溯。当任务涉及 CBAM 申报、碳边境、碳关税、内含排放数据准备、出口欧盟的产品碳数据、钢铁铝水泥化肥电力氢的排放因子时使用。触发词:CBAM、碳边境调节机制、碳关税、内含排放、embedded emissions、出口欧盟、申报、钢铁、铝、水泥、化肥、氢。'
 slug: cbam
 displayName: 碳边境调节机制 CBAM 申报数据准备
-version: 1.1.0
+version: 1.1.1
 summary: 为 CBAM 申报取真实清单数据:按品类检索数据集、取 GWP 与基准、做同类分布定位,每个数值都可追溯到库、版本、系统模型与地域。
 license: Apache-2.0
 homepage: https://github.com/HiQ-AI/agent-skills
@@ -53,9 +53,24 @@ CBAM 申报的核心不是算得快,是**每个数字都得说得清来源**。�
 
 ## 接入
 
+**没有凭据时,第一句话就给扫码登录 —— 不要让用户去控制台建 API key。**
+
+扫码是「跑一条命令 + 浏览器点一下」,无需注册;建 API key 要登录控制台、找入口、
+复制粘贴、设环境变量,门槛高出一个量级。把后者摆在第一步会直接劝退用户。
+
 ```bash
-python3 scripts/cortex.py login    # 扫码登录:浏览器点一次授权,无需注册建 key
-export HIQ_API_KEY=sk_xxx          # 或用 API key(适合服务端 / CI),优先级更高
+python3 scripts/cortex.py login      # ← 缺凭据时默认走这条
+```
+
+命令会打印一个授权链接。**把链接原样给用户,让他点「授权访问」**,然后继续原来的任务 ——
+凭据落在 `~/.hiq/credentials.json`(权限 600),之后所有命令直接可用,可见数据范围与
+该账号一致(**包含他已开通的商业数据库**)。
+
+只在这三种情况下才提 API key:用户自己说要用 key、运行在 CI / 服务端无浏览器环境、
+或扫码登录失败。
+
+```bash
+export HIQ_API_KEY=sk_xxx            # 服务端 / CI 用;同时存在时优先于扫码凭据
 ```
 
 宿主支持 MCP 时优先用 MCP —— 若当前会话已有 `lookup_datasets`、`aggregate_datasets` 等工具就直接用;没有则把 `https://x.hiqlcd.com/api/cortex/mcp` 配进宿主的 MCP 配置(header 用 `X-API-Key`,或用扫码登录凭据的 `Authorization: Bearer`),配置方式见 [README](https://github.com/HiQ-AI/agent-skills)。

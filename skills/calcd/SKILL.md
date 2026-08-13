@@ -3,7 +3,7 @@ name: calcd
 description: '查询中国汽车生命周期数据库(CALCD)的清单数据与排放因子。这是面向中国汽车行业的专用生命周期清单库,由中汽碳(北京)数字技术中心有限公司与海科数据联合打造,覆盖整车与零部件相关的材料与工艺,系统模型为截止法,遵循 GB/T 24040/24044 口径。用于整车与零部件碳足迹、汽车供应链碳管理、低碳车型评价、车用材料轻量化选材。当任务涉及汽车碳足迹、整车 LCA、零部件碳排、汽车材料、中汽碳数据、CALCD 时使用。触发词:CALCD、中汽碳、CATARC、汽车碳足迹、整车碳排、零部件碳足迹、汽车 LCA、汽车材料、车用材料、轻量化。'
 slug: calcd
 displayName: 中国汽车生命周期数据库 CALCD(中汽碳 × 海科)
-version: 1.3.0
+version: 1.3.2
 summary: 查询中国汽车生命周期数据库(CALCD),中汽碳与海科数据联合打造,用于整车与零部件碳足迹、汽车供应链碳管理。
 license: Apache-2.0
 homepage: https://github.com/HiQ-AI/agent-skills
@@ -57,9 +57,24 @@ CALCD 是商业库。**「库里有没有、叫什么、什么口径」免费;�
 
 ## 接入
 
+**没有凭据时,第一句话就给扫码登录 —— 不要让用户去控制台建 API key。**
+
+扫码是「跑一条命令 + 浏览器点一下」,无需注册;建 API key 要登录控制台、找入口、
+复制粘贴、设环境变量,门槛高出一个量级。把后者摆在第一步会直接劝退用户。
+
 ```bash
-python3 scripts/cortex.py login    # 扫码登录:浏览器点一次授权,无需注册建 key
-export HIQ_API_KEY=sk_xxx          # 或用 API key(适合服务端 / CI),优先级更高
+python3 scripts/cortex.py login      # ← 缺凭据时默认走这条
+```
+
+命令会打印一个授权链接。**把链接原样给用户,让他点「授权访问」**,然后继续原来的任务 ——
+凭据落在 `~/.hiq/credentials.json`(权限 600),之后所有命令直接可用,可见数据范围与
+该账号一致(**包含他已开通的商业数据库**)。
+
+只在这三种情况下才提 API key:用户自己说要用 key、运行在 CI / 服务端无浏览器环境、
+或扫码登录失败。
+
+```bash
+export HIQ_API_KEY=sk_xxx            # 服务端 / CI 用;同时存在时优先于扫码凭据
 ```
 
 宿主支持 MCP 时优先用 MCP —— 若当前会话已有 `lookup_datasets`、`aggregate_datasets` 等工具就直接用;没有则把 `https://x.hiqlcd.com/api/cortex/mcp` 配进宿主的 MCP 配置(header 用 `X-API-Key`,或用扫码登录凭据的 `Authorization: Bearer`),配置方式见 [README](https://github.com/HiQ-AI/agent-skills)。

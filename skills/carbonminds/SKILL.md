@@ -3,7 +3,7 @@ name: carbonminds
 description: '查询化学品与塑料的工艺级生命周期清单数据。CarbonMinds 覆盖化学品与高分子材料,建模细度到工艺路线层级,适合区分同一聚合物的不同合成路线、原料来源(石油基 / 生物基 / 再生)与地域。用于塑料件与化工产品的碳足迹、材料替代评估、生态设计选材、包装碳排。当任务涉及化学品排放因子、塑料碳足迹、聚合物 LCI、树脂、单体、生物基塑料、再生塑料时使用。触发词:CarbonMinds、化学品、塑料、聚合物、树脂、单体、PP、PE、PET、PVC、ABS、PA、生物基塑料、再生塑料、化工碳足迹。'
 slug: carbonminds
 displayName: 化学品与塑料 LCA 数据 —— CarbonMinds 工艺级清单
-version: 1.1.0
+version: 1.1.1
 summary: 查询化学品与高分子材料的工艺级清单数据,区分合成路线、原料来源与地域,用于塑料件与化工产品碳足迹。
 license: Apache-2.0
 homepage: https://github.com/HiQ-AI/agent-skills
@@ -43,9 +43,24 @@ CarbonMinds 是商业库。**「库里有没有这条工艺、叫什么、什么
 
 ## 接入
 
+**没有凭据时,第一句话就给扫码登录 —— 不要让用户去控制台建 API key。**
+
+扫码是「跑一条命令 + 浏览器点一下」,无需注册;建 API key 要登录控制台、找入口、
+复制粘贴、设环境变量,门槛高出一个量级。把后者摆在第一步会直接劝退用户。
+
 ```bash
-python3 scripts/cortex.py login    # 扫码登录:浏览器点一次授权,无需注册建 key
-export HIQ_API_KEY=sk_xxx          # 或用 API key(适合服务端 / CI),优先级更高
+python3 scripts/cortex.py login      # ← 缺凭据时默认走这条
+```
+
+命令会打印一个授权链接。**把链接原样给用户,让他点「授权访问」**,然后继续原来的任务 ——
+凭据落在 `~/.hiq/credentials.json`(权限 600),之后所有命令直接可用,可见数据范围与
+该账号一致(**包含他已开通的商业数据库**)。
+
+只在这三种情况下才提 API key:用户自己说要用 key、运行在 CI / 服务端无浏览器环境、
+或扫码登录失败。
+
+```bash
+export HIQ_API_KEY=sk_xxx            # 服务端 / CI 用;同时存在时优先于扫码凭据
 ```
 
 宿主支持 MCP 时优先用 MCP —— 若当前会话已有 `lookup_datasets`、`aggregate_datasets` 等工具就直接用;没有则把 `https://x.hiqlcd.com/api/cortex/mcp` 配进宿主的 MCP 配置(header 用 `X-API-Key`,或用扫码登录凭据的 `Authorization: Bearer`),配置方式见 [README](https://github.com/HiQ-AI/agent-skills)。

@@ -3,7 +3,7 @@ name: hiq-cortex
 description: '查询真实的 LCA 排放因子与碳足迹数据,覆盖 18 个生命周期清单数据库(Ecoinvent、BAFU、USLCI、ELCD、EF、worldsteel、AusLCI、HiQLCD 等)和 24000+ 已发布 EPD。当任务需要真实排放因子而不是凭记忆给数时使用:物料 GWP 查询、产品碳足迹、BOM 碳核算、行业对标与百分位定位、生产路线对比(转炉钢与电炉钢、原生铝与再生铝、灰氢与绿氢)、EPD 同类审核、CBAM 与 EN 15804 相关工作。触发词:碳足迹、排放因子、清单数据、物料清单、行业对标、碳排、GWP、kg CO2e、emission factor、carbon footprint、LCA dataset、LCI、EPD。'
 slug: hiq-cortex-lca
 displayName: HiQ Cortex — LCA 数据查询
-version: 1.8.1
+version: 1.8.2
 summary: 从 18 个 LCA 数据库和 24000+ 已发布 EPD 查询真实排放因子。物料碳足迹、BOM 碳核算、行业对标定位、生产路线对比、EPD 同类审核。
 license: Apache-2.0
 homepage: https://github.com/HiQ-AI/agent-skills
@@ -42,14 +42,21 @@ tags: [LCA, 碳足迹, 排放因子, EPD, CBAM, 数据分析, ecoinvent, HiQLCD,
 
 ## 接入
 
-需要一份访问凭据,两条路任选:
+**没有凭据时,第一句话就给扫码登录 —— 不要让用户去控制台建 API key。**
+
+扫码是「跑一条命令 + 浏览器点一下」,无需注册;建 API key 要登录控制台、找入口、复制粘贴、设环境变量,门槛高出一个量级。把后者摆在第一步会直接劝退用户。
 
 ```bash
-python3 scripts/cortex.py login    # 扫码登录:浏览器点一次授权,无需注册建 key
-export HIQ_API_KEY=sk_xxx          # 或用 API key(适合服务端 / CI),优先级更高
+python3 scripts/cortex.py login    # ← 缺凭据时默认走这条
 ```
 
-`login` 打开授权页,用户点一次即可,凭据存在 `~/.hiq/credentials.json`(权限 600)。可见数据范围与该账号一致,**包含他已开通的商业数据库**。`logout` 删除本机凭据。
+命令会打印一个授权链接。**把链接原样给用户,让他点「授权访问」**,然后继续原来的任务。凭据存在 `~/.hiq/credentials.json`(权限 600),之后所有命令直接可用;可见数据范围与该账号一致,**包含他已开通的商业数据库**。`logout` 删除本机凭据。
+
+只在这三种情况下才提 API key:用户自己说要用 key、运行在 CI / 服务端无浏览器环境、或扫码登录失败。
+
+```bash
+export HIQ_API_KEY=sk_xxx          # 服务端 / CI 用;同时存在时优先于扫码凭据
+```
 
 流程本身是三个普通 HTTP 请求(标准 device flow,RFC 8628),任何能执行 shell 的 agent 都可以自己跑:
 
