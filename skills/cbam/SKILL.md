@@ -3,7 +3,7 @@ name: cbam
 description: '为 CBAM(欧盟碳边境调节机制)申报取真实的生命周期清单数据。CBAM 覆盖钢铁、铝、水泥、化肥、电力、氢六个品类,申报要求逐项交代内含排放的数据来源与口径,不能凭经验值填报。本技能负责按品类检索对应的清单数据集、取 GWP 与基准、做同类分布定位,并把数据库、版本、系统模型、地域、参考流一并交代清楚,供申报文件追溯。当任务涉及 CBAM 申报、碳边境、碳关税、内含排放数据准备、出口欧盟的产品碳数据、钢铁铝水泥化肥电力氢的排放因子时使用。触发词:CBAM、碳边境调节机制、碳关税、内含排放、embedded emissions、出口欧盟、申报、钢铁、铝、水泥、化肥、氢。'
 slug: cbam
 displayName: 碳边境调节机制 CBAM 申报数据准备
-version: 1.1.1
+version: 1.1.2
 summary: 为 CBAM 申报取真实清单数据:按品类检索数据集、取 GWP 与基准、做同类分布定位,每个数值都可追溯到库、版本、系统模型与地域。
 license: Apache-2.0
 homepage: https://github.com/HiQ-AI/agent-skills

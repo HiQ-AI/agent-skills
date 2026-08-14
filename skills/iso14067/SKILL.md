@@ -3,7 +3,7 @@ name: iso14067
 description: '按 ISO 14067 口径做产品碳足迹时取真实的清单数据,并把每个数值的来源交代到可核验的程度。ISO 14067 要求产品碳足迹报告说明功能单位、系统边界、数据来源、数据质量与分配方法 —— 本技能负责其中的数据获取部分:检索匹配数据集、取 GWP 与 LCIA 指标、记录库与版本与系统模型与地域,并区分实测、数据库直取与代理数据。当任务涉及 ISO 14067、产品碳足迹报告、CFP、第三方核验、数据质量说明、GB/T 24067 时使用。触发词:ISO 14067、GB/T 24067、产品碳足迹、CFP、carbon footprint of a product、核验、数据质量、功能单位、系统边界。'
 slug: iso14067
 displayName: 碳足迹核算与数据溯源(ISO 14067)
-version: 1.1.1
+version: 1.1.2
 summary: 按 ISO 14067 口径取产品碳足迹数据:检索匹配、取值、记录库与版本与系统模型与地域,区分实测/直取/代理,供第三方核验。
 license: Apache-2.0
 homepage: https://github.com/HiQ-AI/agent-skills

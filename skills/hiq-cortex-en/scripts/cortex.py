@@ -273,6 +273,40 @@ def _auth_post(path: str, payload: dict, timeout: int = 30) -> tuple[int, dict]:
         sys.exit(f"网络错误:{e.reason}")
 
 
+# ── 归因:技能包自报家门 ────────────────────────────────────────────────────
+# 授权页要按「哪个宿主 / 哪个市场 / 哪个技能」分渠道看转化,而这些信息只有
+# 客户端知道 —— 全部从脚本自身的安装路径推断,不需要任何配置,也不额外收集
+# 任何用户数据(只用到本文件的路径和同目录的 _meta.json)。
+def _origin() -> dict:
+    here = pathlib.Path(__file__).resolve()
+    p = str(here)
+
+    # 宿主:各家把技能装在自己的目录下
+    host = ("workbuddy" if "/.workbuddy/" in p else
+            "claude-code" if "/.claude/" in p else
+            "cursor" if "/.cursor/" in p else
+            "cline" if "/.cline/" in p else "other")
+
+    # 技能目录 = scripts/ 的上一层
+    skill_dir = here.parent.parent
+    skill = skill_dir.name
+
+    # _meta.json 是 SkillHub 打包时注入的;GitHub / 手工安装没有这个文件
+    channel, version = "github", ""
+    meta = skill_dir / "_meta.json"
+    if meta.is_file():
+        channel = "skillhub"
+        try:
+            m = json.loads(meta.read_text(encoding="utf-8"))
+            skill = m.get("slug") or skill
+            version = str(m.get("version") or "")
+        except Exception:
+            pass
+
+    return {"client_host": host, "client_channel": channel,
+            "client_skill": skill, "client_version": version}
+
+
 def cmd_login(a) -> None:
     """扫码登录:发起 device flow → 用户在浏览器授权 → 轮询取凭据 → 落盘。
 
@@ -283,6 +317,7 @@ def cmd_login(a) -> None:
 
     status, rec = _auth_post("/oauth/device_authorization", {
         "agent_id": a.name, "agent_name": a.name, "scope": "lca_data",
+        **_origin(),
     })
     if status >= 400:
         sys.exit(f"发起授权失败({status}):{json.dumps(rec, ensure_ascii=False)[:200]}")

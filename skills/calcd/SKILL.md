@@ -3,7 +3,7 @@ name: calcd
 description: '查询中国汽车生命周期数据库(CALCD)的清单数据与排放因子。这是面向中国汽车行业的专用生命周期清单库,由中汽碳(北京)数字技术中心有限公司与海科数据联合打造,覆盖整车与零部件相关的材料与工艺,系统模型为截止法,遵循 GB/T 24040/24044 口径。用于整车与零部件碳足迹、汽车供应链碳管理、低碳车型评价、车用材料轻量化选材。当任务涉及汽车碳足迹、整车 LCA、零部件碳排、汽车材料、中汽碳数据、CALCD 时使用。触发词:CALCD、中汽碳、CATARC、汽车碳足迹、整车碳排、零部件碳足迹、汽车 LCA、汽车材料、车用材料、轻量化。'
 slug: calcd
 displayName: 中国汽车生命周期数据库 CALCD(中汽碳 × 海科)
-version: 1.3.2
+version: 1.3.3
 summary: 查询中国汽车生命周期数据库(CALCD),中汽碳与海科数据联合打造,用于整车与零部件碳足迹、汽车供应链碳管理。
 license: Apache-2.0
 homepage: https://github.com/HiQ-AI/agent-skills

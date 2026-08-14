@@ -3,7 +3,7 @@ name: en15804
 description: '按 EN 15804 口径处理建材的环境产品声明(EPD)与清单数据。检索 24000+ 已发布 EPD(EPDItaly、ECO Platform、EPD Norge),按声明单位与模块取指标,做同类分布与离群判定;并可取 EN 15804 系统模型下的生命周期清单数据集。用于建材 EPD 编制与第三方审核、建筑 LCA 取数、绿色建筑评价、同类产品对标。当任务涉及 EN 15804、建材 EPD、A1-A3 等模块、声明单位、EPD 审核、建筑材料碳足迹时使用。触发词:EN 15804、EPD、环境产品声明、建材、A1-A3、模块、declared unit、声明单位、EPDItaly、ECO Platform、建筑碳排。'
 slug: en15804
 displayName: 建材 EPD 与 EN 15804 模块化指标
-version: 1.1.1
+version: 1.1.2
 summary: 按 EN 15804 口径检索已发布 EPD 与清单数据:按声明单位和模块取指标、做同类分布与离群判定,用于 EPD 编制、审核与建筑 LCA。
 license: Apache-2.0
 homepage: https://github.com/HiQ-AI/agent-skills

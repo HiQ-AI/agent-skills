@@ -3,7 +3,7 @@ name: battery-passport
 description: '为电池护照与电池碳足迹取真实的生命周期清单数据。欧盟新电池法要求动力电池与工业电池申报碳足迹并在数字电池护照中披露材料与供应链信息 —— 本技能负责其中的数据获取:正极与负极材料、电解液、隔膜、集流体、电芯组装与外壳的清单数据集匹配与 GWP 取值,以及回收料成分的处理口径,每一项都可追溯到数据库、版本、系统模型与地域。当任务涉及电池护照、电池碳足迹、新电池法、动力电池碳排、正极材料、锂电材料、电芯碳足迹时使用。触发词:电池护照、battery passport、新电池法、EU Battery Regulation、动力电池、电池碳足迹、正极材料、负极材料、电解液、锂电、磷酸铁锂、三元材料。'
 slug: battery-passport
 displayName: 电池护照与电池碳足迹数据
-version: 1.1.1
+version: 1.1.2
 summary: 为电池护照与电池碳足迹取清单数据:正负极材料、电解液、隔膜、集流体、电芯组装逐项匹配,每项可追溯到库与口径。
 license: Apache-2.0
 homepage: https://github.com/HiQ-AI/agent-skills
