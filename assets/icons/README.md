@@ -18,7 +18,7 @@ displayName / summary / description / tags / license / homepage / changelog),只
 | `ecoinvent` | 白底 | **ecoinvent 官方 wordmark**(我方为中国独家代理);备选见 `_alt/` |
 | `hiqlcd` | 白底 | **HiQLCD 官方字样**(自有品牌) |
 | `hiqlcd-al` | 白底 | HiQLCD 字样 + 铝灰 `AL` 标记(与 `hiqlcd` 区分) |
-| `calcd` | `#1565C0` | 汽车蓝 |
+| `calcd` | 白底 | **中汽中心 CATARC 符号**(共建方);源图分辨率偏低,大图略糊 |
 | `carbonminds` | 白底 | **CarbonMinds 官方 `cm` 符号**(我方为其中国代理) |
 | `cbam` | `#D84315` | 橙红 |
 | `en15804` | `#795548` | 建材棕 |
@@ -54,8 +54,16 @@ displayName / summary / description / tags / license / homepage / changelog),只
 在这个尺寸下必然糊成一条(对比 `carbonminds` 的 `cm` 与 `ecoinvent` 的 wordmark 即可看出)。
 有独立符号就用符号。
 
-**尚缺素材**:Agri-footprint、CALCD(中汽碳)、有色金属工业协会 —— 仓库里只有大幅配图
-(`header_agri_footprint.webp` 等),没有可用作图标的标识文件,需要向合作方要。
+外部取得的素材放在 `_sources/`:
+
+| 文件 | 来源 | 用途 |
+|---|---|---|
+| `catarc-symbol.png` | `auto-lcd.cn` 的 `catarclca-logo-left`(白色版,已反色) | → `calcd.png` |
+| `agri-footprint-symbol.png` | `carbonx.hiqlcd.com` 的 `agrifootprint-logo`(Mérieux NutriSciences \| Blonk) | 备用,目前无 agri-footprint 技能 |
+
+**尚缺**:有色金属工业协会(HiQLCD-AL 共建方)、中国电子技术标准化研究院(锂电池库共建方)
+的标识文件。另外 CATARC 那份源图只有 771×128,裁出的符号 115×96,放大到 256 有锯齿 ——
+有 SVG 或更大的 PNG 可以重做。
 
 ## 重新生成
 
