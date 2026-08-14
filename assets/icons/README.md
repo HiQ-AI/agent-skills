@@ -15,7 +15,7 @@ displayName / summary / description / tags / license / homepage / changelog),只
 |---|---|---|
 | `hiq-cortex-lca` | `#E27E0B` | 主入口 · 品牌橙(不变) |
 | `lca` | `#2E7D32` | 绿 |
-| `ecoinvent` | — | **用 ecoinvent 官方 logo**(我方为中国独家代理) |
+| `ecoinvent` | 白底 | **ecoinvent 官方 wordmark**(我方为中国独家代理);备选见 `_alt/` |
 | `hiqlcd` | `#C62828` | 中国红 |
 | `hiqlcd-al` | `#546E7A` | 铝灰 |
 | `calcd` | `#1565C0` | 汽车蓝 |
@@ -28,6 +28,15 @@ displayName / summary / description / tags / license / homepage / changelog),只
 | `pcf` | `#F9A825` | 金黄 |
 | `scope3` | `#AD1457` | 品红 |
 | `battery-passport` | `#689F38` | 黄绿 |
+
+## ecoinvent
+
+用官方 wordmark(`Logo-Wordmark.svg`,295×47)转 256×256 方形,文字宽度占 72% ——
+卡片常做**圆形裁切**,文字必须落在内切圆安全区内,否则两端会被切掉。
+
+`_alt/` 里放了透明底与深底白字两个备选,按 SkillHub 卡片的实际底色挑。
+小尺寸(28px 圆形)下文字必然糊成一条,这是横向 wordmark 的固有限制 ——
+接受这一点,换来的是大图与详情页里正确的品牌呈现。
 
 ## 第三方数据库的 logo
 
