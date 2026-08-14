@@ -16,10 +16,10 @@ displayName / summary / description / tags / license / homepage / changelog),只
 | `hiq-cortex-lca` | `#E27E0B` | 主入口 · 品牌橙(不变) |
 | `lca` | `#2E7D32` | 绿 |
 | `ecoinvent` | 白底 | **ecoinvent 官方 wordmark**(我方为中国独家代理);备选见 `_alt/` |
-| `hiqlcd` | `#C62828` | 中国红 |
-| `hiqlcd-al` | `#546E7A` | 铝灰 |
+| `hiqlcd` | 白底 | **HiQLCD 官方字样**(自有品牌) |
+| `hiqlcd-al` | 白底 | HiQLCD 字样 + 铝灰 `AL` 标记(与 `hiqlcd` 区分) |
 | `calcd` | `#1565C0` | 汽车蓝 |
-| `carbonminds` | `#6A1B9A` | 化学紫 |
+| `carbonminds` | 白底 | **CarbonMinds 官方 `cm` 符号**(我方为其中国代理) |
 | `cbam` | `#D84315` | 橙红 |
 | `en15804` | `#795548` | 建材棕 |
 | `iso14067` | `#00838F` | 青 |
@@ -40,9 +40,22 @@ displayName / summary / description / tags / license / homepage / changelog),只
 
 ## 第三方数据库的 logo
 
-用别家数据库的官方 logo 需要有代理 / 授权关系,否则既越界也会让用户误以为技能是对方
-官方出品。已确认可用的:**ecoinvent**(中国独家代理)。CarbonMinds、Agri-footprint
-等其余第三方库在确认授权前一律用色板方案。
+第三方库的官方 logo **已确认可用** —— 我方是这些库的中国代理 / 合作伙伴。素材大多在
+`square-web-next/public/images/database/` 下已有:
+
+| 文件 | 是什么 | 用途 |
+|---|---|---|
+| `eco.svg` | ecoinvent wordmark | → `ecoinvent.png` |
+| `cm.svg` | CarbonMinds(左侧 `cm` 是独立方形符号) | → `carbonminds.png`,只取符号 |
+| `logo.svg` | HiQLCD 字样 | → `hiqlcd.png` / `hiqlcd-al.png` |
+| `needs.svg` / `exio.svg` | NEEDS / EXIOBASE | 暂未用(无对应技能) |
+
+**优先用方形符号而非 wordmark** —— 卡片图标只有 20–30px 且常做圆形裁切,横向 wordmark
+在这个尺寸下必然糊成一条(对比 `carbonminds` 的 `cm` 与 `ecoinvent` 的 wordmark 即可看出)。
+有独立符号就用符号。
+
+**尚缺素材**:Agri-footprint、CALCD(中汽碳)、有色金属工业协会 —— 仓库里只有大幅配图
+(`header_agri_footprint.webp` 等),没有可用作图标的标识文件,需要向合作方要。
 
 ## 重新生成
 
