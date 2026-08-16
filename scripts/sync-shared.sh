@@ -13,11 +13,13 @@ src="skills/_shared/cortex.py"
 
 [ -f "$src" ] || { echo "缺少 $src" >&2; exit 1; }
 
+# 只同步「已经在用这个 client」的包 —— 有些技能不走 cortex.py(如 hiq-editor 用
+# npx @hiq-ai/hiq-editor),给它们塞一个用不上的脚本只会让包变大、让人误以为要跑它。
 for skill in skills/*/; do
   name="$(basename "$skill")"
   [ "$name" = "_shared" ] && continue
   [ -f "$skill/SKILL.md" ] || continue
-  mkdir -p "$skill/scripts"
+  [ -f "$skill/scripts/cortex.py" ] || { echo "跳过 $name(不使用 cortex.py)"; continue; }
   cp "$src" "$skill/scripts/cortex.py"
   echo "→ $skill/scripts/cortex.py"
 done

@@ -21,6 +21,7 @@ Open [Agent Skills](https://code.claude.com/docs/en/skills) published by [HiQ](h
 | [`pef`](skills/pef/) | EU Product Environmental Footprint: EF reference-package datasets and the full set of impact categories, not just carbon. | `pef` |
 | [`battery-passport`](skills/battery-passport/) | Battery passport and battery carbon footprint: cathode, anode, electrolyte, separator, current collectors, cell assembly. | `battery-passport` |
 | [`hiqlcd-al`](skills/hiqlcd-al/) | Aluminium value chain — alumina, smelting, casting, extrusion, die casting, and recycled aluminium, cut-off and consequential. | `hiqlcd-al` |
+| [`hiq-editor`](skills/hiq-editor/) | **Authoring**, not lookup: create unit process datasets in the HiQ editor, add exchanges, match background data, trial-calculate, submit for review, bulk-import UPR templates. Requires editor entitlement. | `hiq-editor` |
 
 All of them are on [SkillHub](https://skillhub.cn/) (WorkBuddy / OpenClaw and variants):
 
@@ -35,7 +36,7 @@ With [`npx skills`](https://github.com/vercel-labs/skills):
 ```bash
 npx skills add HiQ-AI/agent-skills --skill hiq-cortex
 # also: lca · ecoinvent · hiqlcd · hiqlcd-al · calcd · carbonminds · cbam · pef · pcf · scope3
-#       iso14067 · en15804 · ghg-protocol · battery-passport
+#       iso14067 · en15804 · ghg-protocol · battery-passport · hiq-editor
 ```
 
 Or copy the skill directory into your host's skills folder:
