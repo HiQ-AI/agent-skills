@@ -2,8 +2,8 @@
 name: hiq-editor
 description: '在 HiQ LCA 数据集编辑器里录入与维护单元过程数据集(UPR):新建数据集、加数据项(exchange)、匹配背景数据、试算、提交评审,以及把填好的官方 UPR 模板 .xlsx 整本导入。面向已开通编辑器权限的 LCA 数据编制人员 —— 这是数据生产工具,不是数据查询工具;查排放因子请用 hiq-cortex-lca 等查询技能。当任务涉及录入数据集、编辑清单、UPR 导入、数据项维护、背景数据匹配、试算与提交评审时使用。触发词:数据集编辑、录入、UPR、单元过程、数据项、exchange、背景数据匹配、试算、提交评审、数据编制、清单编制。'
 slug: hiq-editor
-displayName: LCA 数据集编辑器 HiQ Editor(MCP + CLI)
-version: 1.0.0
+displayName: LCA 数据集编辑器 HiQ Editor
+version: 1.0.1
 summary: 在 HiQ 编辑器里录入与维护 LCA 单元过程数据集:建数据集、加数据项、匹配背景、试算、提交评审、UPR 模板整本导入。需编辑器权限。
 license: Apache-2.0
 homepage: https://github.com/HiQ-AI/hiq-editor
