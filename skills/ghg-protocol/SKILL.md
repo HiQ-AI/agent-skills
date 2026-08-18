@@ -3,7 +3,7 @@ name: ghg-protocol
 description: '为企业温室气体核算(GHG Protocol / ISO 14064)取真实的排放因子。范围一的燃料燃烧、范围二的外购电力与热力、范围三的上游物料与服务,逐项匹配生命周期清单数据集并取 GWP,覆盖 18 个 LCI 数据库。每一项都可追溯到数据库、版本、系统模型、地域与参考流,供 CDP、ISSB、SBTi 与年度报告核查。当任务涉及企业碳盘查、温室气体核算、范围一二三、组织碳排、GHG Protocol、ISO 14064、双碳报告取数时使用。触发词:GHG Protocol、温室气体核算、企业碳盘查、组织碳排、范围一、范围二、范围三、ISO 14064、CDP、SBTi、碳中和报告、排放因子。'
 slug: ghg-protocol
 displayName: 温室气体核算 GHG Protocol 企业碳盘查取数
-version: 1.1.3
+version: 1.2.0
 summary: 为企业碳盘查取排放因子:范围一燃料、范围二电力热力、范围三上游,逐项可追溯到库与口径,供 CDP/ISSB/SBTi 核查。
 license: Apache-2.0
 homepage: https://github.com/HiQ-AI/agent-skills
@@ -65,7 +65,7 @@ tags: [GHG Protocol, 温室气体核算, 企业碳盘查, 范围一, 范围二, 
 复制粘贴、设环境变量,门槛高出一个量级。把后者摆在第一步会直接劝退用户。
 
 ```bash
-python3 scripts/cortex.py login      # ← 缺凭据时默认走这条
+npx @hiq-ai/hiq-cortex-cli login      # ← 缺凭据时默认走这条
 ```
 
 命令会打印一个授权链接。**把链接原样给用户,让他点「授权访问」**,然后继续原来的任务 ——

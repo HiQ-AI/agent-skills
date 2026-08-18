@@ -3,7 +3,7 @@ name: hiq-cortex
 description: '查询真实的 LCA 排放因子与碳足迹数据,覆盖 18 个生命周期清单数据库(Ecoinvent、BAFU、USLCI、ELCD、EF、worldsteel、AusLCI、HiQLCD 等)和 24000+ 已发布 EPD。当任务需要真实排放因子而不是凭记忆给数时使用:物料 GWP 查询、产品碳足迹、BOM 碳核算、行业对标与百分位定位、生产路线对比(转炉钢与电炉钢、原生铝与再生铝、灰氢与绿氢)、EPD 同类审核、CBAM 与 EN 15804 相关工作。触发词:碳足迹、排放因子、清单数据、物料清单、行业对标、碳排、GWP、kg CO2e、emission factor、carbon footprint、LCA dataset、LCI、EPD。'
 slug: hiq-cortex-lca
 displayName: HiQ Cortex — LCA 数据查询
-version: 1.8.5
+version: 1.9.0
 summary: 从 18 个 LCA 数据库和 24000+ 已发布 EPD 查询真实排放因子。物料碳足迹、BOM 碳核算、行业对标定位、生产路线对比、EPD 同类审核。
 license: Apache-2.0
 homepage: https://github.com/HiQ-AI/agent-skills
@@ -49,7 +49,7 @@ tags: [LCA, 碳足迹, 排放因子, EPD, CBAM, 数据分析, ecoinvent, HiQLCD,
 扫码是「跑一条命令 + 浏览器点一下」,无需注册;建 API key 要登录控制台、找入口、复制粘贴、设环境变量,门槛高出一个量级。把后者摆在第一步会直接劝退用户。
 
 ```bash
-python3 scripts/cortex.py login    # ← 缺凭据时默认走这条
+npx @hiq-ai/hiq-cortex-cli login    # ← 缺凭据时默认走这条
 ```
 
 命令会打印一个授权链接。**把链接原样给用户,让他点「授权访问」**,然后继续原来的任务。凭据存在 `~/.hiq/credentials.json`(权限 600),之后所有命令直接可用;可见数据范围与该账号一致,**包含他已开通的商业数据库**。`logout` 删除本机凭据。

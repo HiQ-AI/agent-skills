@@ -3,7 +3,7 @@ name: hiq-cortex
 description: 'Look up real LCA emission factors and carbon footprint data from 18 life-cycle inventory databases (Ecoinvent, BAFU, USLCI, ELCD, EF, worldsteel, AusLCI, HiQLCD …) and 24,000+ published EPDs. Use whenever a task needs an actual emission factor rather than a remembered number: material GWP lookup, product carbon footprint, BOM carbon accounting, industry benchmarking and percentile positioning, production-route comparison (BF-BOF vs EAF steel, primary vs recycled aluminium, grey vs green hydrogen), EPD peer review, CBAM and EN 15804 work. Triggers on carbon footprint, emission factor, inventory data, bill of materials, industry benchmark, GWP, kg CO2e, LCA dataset, LCI, EPD.'
 slug: hiq-cortex
 displayName: HiQ Cortex — LCA Data
-version: 1.8.3
+version: 1.9.0
 summary: Look up real emission factors from 18 LCA databases and 24,000+ published EPDs. Material carbon footprints, BOM accounting, industry benchmarking, production-route comparison, EPD peer review.
 license: Apache-2.0
 homepage: https://github.com/HiQ-AI/agent-skills
@@ -47,7 +47,7 @@ Available:
 Sign-in is one command plus one click, with no registration. Creating an API key means logging into a console, finding the right page, copying a secret, and setting an environment variable — an order of magnitude more friction. Putting that first is how you lose the user.
 
 ```bash
-python3 scripts/cortex.py login    # ← the default when no credential is present
+npx @hiq-ai/hiq-cortex-cli login   # ← the default when no credential is present
 ```
 
 The command prints an authorization link. **Hand the link to the user verbatim, have them click "authorize"**, then carry on with the original task. Credentials land in `~/.hiq/credentials.json` (mode 600) and every command works from then on; the visible data scope matches that account, **including any commercial databases it has access to**. `logout` removes them.

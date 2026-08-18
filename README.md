@@ -83,13 +83,30 @@ export HIQ_API_KEY=sk_xxx
 - Scripts use the Python standard library only — no `pip install`.
 - Issues and contributions welcome via GitHub issues.
 
+## The CLI
+
+Query skills drive [`@hiq-ai/hiq-cortex-cli`](https://github.com/HiQ-AI/hiq-cortex-cli)
+(Apache-2.0):
+
+```bash
+npx @hiq-ai/hiq-cortex-cli login
+npx @hiq-ai/hiq-cortex-cli search "304 不锈钢"
+```
+
+It used to be a Python script vendored into every package; folding it into one npm package means
+a client fix ships once instead of republishing every skill. Credentials from the old script
+(`~/.hiq/credentials.json`) are still read, so nobody has to sign in again.
+
+The bundled `scripts/cortex.py` stays for one or two more releases so anyone on an older install
+keeps working. New instructions use the CLI.
+
 ## Repo layout
 
 ```
-skills/_shared/cortex.py     # single source of truth for the HTTP client
+skills/_shared/cortex.py     # legacy Python client — kept during the transition
 skills/<name>/SKILL.md       # per-skill instructions
-skills/<name>/scripts/       # synced copy of the client (committed — `npx skills` installs from the repo)
-scripts/sync-shared.sh       # run after editing the shared client, then commit every package
+skills/<name>/scripts/       # synced copy of the legacy client (still committed)
+scripts/sync-shared.sh       # only syncs packages that already carry the script
 ```
 
 Each package is deliberately thin: how to call, what to pass, how to read the response. Domain

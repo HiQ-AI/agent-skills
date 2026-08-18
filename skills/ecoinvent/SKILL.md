@@ -3,7 +3,7 @@ name: ecoinvent
 description: '在 ecoinvent 中检索并读取真实的生命周期清单数据。ecoinvent 是全球覆盖最广的 LCI 数据库,同一材料在不同系统模型(cut-off、APOS、consequential、EN 15804)、不同地域、不同参考流下结果可差数倍,本技能负责把检索、口径核对与基准交代做对。当任务涉及 ecoinvent 数据集查询、系统模型选择、活动名称与参考流核对、地域代理、GWP 与 LCIA 指标取数时使用。触发词:ecoinvent、cut-off、截止法、APOS、consequential、后果法、系统模型、system model、LCI 数据集、生命周期清单、排放因子、GWP、kg CO2e。'
 slug: ecoinvent
 displayName: ecoinvent 数据集查询与系统模型核对
-version: 1.0.4
+version: 1.1.0
 summary: 在 ecoinvent 中检索数据集并读懂口径:系统模型、地域、参考流、版本一并交代,候选之间的差异由服务端标注。
 license: Apache-2.0
 homepage: https://github.com/HiQ-AI/agent-skills
@@ -60,7 +60,7 @@ tags: [ecoinvent, LCA, 系统模型, cut-off, APOS, consequential, 排放因子,
 复制粘贴、设环境变量,门槛高出一个量级。把后者摆在第一步会直接劝退用户。
 
 ```bash
-python3 scripts/cortex.py login      # ← 缺凭据时默认走这条
+npx @hiq-ai/hiq-cortex-cli login      # ← 缺凭据时默认走这条
 ```
 
 命令会打印一个授权链接。**把链接原样给用户,让他点「授权访问」**,然后继续原来的任务 ——
