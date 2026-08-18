@@ -3,7 +3,7 @@ name: hiq-cortex
 description: '查询真实的 LCA 排放因子与碳足迹数据,覆盖 18 个生命周期清单数据库(Ecoinvent、BAFU、USLCI、ELCD、EF、worldsteel、AusLCI、HiQLCD 等)和 24000+ 已发布 EPD。当任务需要真实排放因子而不是凭记忆给数时使用:物料 GWP 查询、产品碳足迹、BOM 碳核算、行业对标与百分位定位、生产路线对比(转炉钢与电炉钢、原生铝与再生铝、灰氢与绿氢)、EPD 同类审核、CBAM 与 EN 15804 相关工作。触发词:碳足迹、排放因子、清单数据、物料清单、行业对标、碳排、GWP、kg CO2e、emission factor、carbon footprint、LCA dataset、LCI、EPD。'
 slug: hiq-cortex-lca
 displayName: HiQ Cortex — LCA 数据查询
-version: 1.8.3
+version: 1.8.4
 summary: 从 18 个 LCA 数据库和 24000+ 已发布 EPD 查询真实排放因子。物料碳足迹、BOM 碳核算、行业对标定位、生产路线对比、EPD 同类审核。
 license: Apache-2.0
 homepage: https://github.com/HiQ-AI/agent-skills
@@ -124,7 +124,10 @@ curl -sN -X POST https://x.hiqlcd.com/api/cortex/search \
 | `fit: high / medium / low` | 服务端给出的匹配质量 | `low` 的候选引用前先跟用户确认 |
 | `name` / `ref_product` / `location` | 数据集名称、参考流、地域 | 引用前先读 —— 「冷轧退火卷」和「中厚板」是不同产品 |
 | `restricted: true` | 无该库数据包权益 | 给 `purchase_url`,可提供免费库替代并说明 |
-| `link` | 该数据集在平台上的详情页 | **每条结果都带上**,别等用户要 |
+| `link` | 该数据集在平台上的详情页 | **每条结果都带上**,别等用户要。检索侧**保证有** —— 服务端把没有 link 的候选直接丢弃了,拿到的每条都带 |
+| `src` / `ver` / `model` / `loc` / `unit` | 数据库 / 版本 / 系统模型 / 地域 / 单位 | 这五个就是硬规则 2 要的「基准」,直接取,别自己拼 |
+| `material` | 这条候选对应用户问的哪个物料 | 多物料批量检索时用它归组 |
+| `dqi` | 数据质量指标 | 有值就带上,用户判断可用性要看 |
 | `dataset_key` | 给工具用的不透明句柄 | 自己下一步调用时用,**不展示给用户** |
 | `dataset_uuid` | 查询侧的数据集标识 | 同样不展示;**它不是编辑器里的「背景数据唯一 ID」**,别拿去填 `hiq-editor` 的 `background`(那个要用 `search-backgrounds` 现查) |
 | `missing_keys` 非空 | key 来自旧版本目录 | 重新检索,不要手改 key |
