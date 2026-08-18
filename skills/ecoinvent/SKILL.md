@@ -3,7 +3,7 @@ name: ecoinvent
 description: '在 ecoinvent 中检索并读取真实的生命周期清单数据。ecoinvent 是全球覆盖最广的 LCI 数据库,同一材料在不同系统模型(cut-off、APOS、consequential、EN 15804)、不同地域、不同参考流下结果可差数倍,本技能负责把检索、口径核对与基准交代做对。当任务涉及 ecoinvent 数据集查询、系统模型选择、活动名称与参考流核对、地域代理、GWP 与 LCIA 指标取数时使用。触发词:ecoinvent、cut-off、截止法、APOS、consequential、后果法、系统模型、system model、LCI 数据集、生命周期清单、排放因子、GWP、kg CO2e。'
 slug: ecoinvent
 displayName: ecoinvent 数据集查询与系统模型核对
-version: 1.0.3
+version: 1.0.4
 summary: 在 ecoinvent 中检索数据集并读懂口径:系统模型、地域、参考流、版本一并交代,候选之间的差异由服务端标注。
 license: Apache-2.0
 homepage: https://github.com/HiQ-AI/agent-skills
@@ -47,6 +47,10 @@ tags: [ecoinvent, LCA, 系统模型, cut-off, APOS, consequential, 排放因子,
 - **不要把 `dataset_key` / `dataset_uuid` 贴给用户看。** 那是给工具用的不透明句柄,
   对人没有意义 —— 展示的是名称、参考流、地域、库+版本+系统模型、数值、链接。
   另注:`dataset_uuid` **不是** `hiq-editor` 里的「背景数据唯一 ID」,别拿去填 `background`。
+
+**本技能只查 ecoinvent。** 每次 `search` 都要带 `--sources Ecoinvent`,聚合/指标类带
+`--source` 的同理 —— 用户来装这个技能就是冲着这个库来的,混进别的库的候选只会让他
+更难挑。用户明确要求跨库比较时,告诉他主技能 `hiq-cortex-lca` 更合适。
 
 ## 接入
 

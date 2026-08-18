@@ -3,7 +3,7 @@ name: hiq-cortex
 description: '查询真实的 LCA 排放因子与碳足迹数据,覆盖 18 个生命周期清单数据库(Ecoinvent、BAFU、USLCI、ELCD、EF、worldsteel、AusLCI、HiQLCD 等)和 24000+ 已发布 EPD。当任务需要真实排放因子而不是凭记忆给数时使用:物料 GWP 查询、产品碳足迹、BOM 碳核算、行业对标与百分位定位、生产路线对比(转炉钢与电炉钢、原生铝与再生铝、灰氢与绿氢)、EPD 同类审核、CBAM 与 EN 15804 相关工作。触发词:碳足迹、排放因子、清单数据、物料清单、行业对标、碳排、GWP、kg CO2e、emission factor、carbon footprint、LCA dataset、LCI、EPD。'
 slug: hiq-cortex-lca
 displayName: HiQ Cortex — LCA 数据查询
-version: 1.8.4
+version: 1.8.5
 summary: 从 18 个 LCA 数据库和 24000+ 已发布 EPD 查询真实排放因子。物料碳足迹、BOM 碳核算、行业对标定位、生产路线对比、EPD 同类审核。
 license: Apache-2.0
 homepage: https://github.com/HiQ-AI/agent-skills
@@ -176,7 +176,38 @@ curl -sN -X POST https://x.hiqlcd.com/api/cortex/search \
 | 免费库数值 | BAFU、USLCI、ELCD、EF、AusLCI、NEEDS、ozLCI、worldsteel、USDA、bioenergiedat、recycledplastics 的 GWP 与聚合统计 | 任一有效 key |
 | 商业库数值 | ecoinvent、HiQLCD、HiQLCD-AL、CALCD(汽车)、CarbonMinds、Agri-footprint | 需对应数据包权益 |
 
-数据包权益与订阅套餐是**两套独立体系**,升级套餐不会解锁数据库。无权益时告诉用户是哪个库受限、把 `purchase_url` 给他;若免费库能回答同一问题,主动提供这条路径并说明这是替代。
+数据包权益与订阅套餐是**两套独立体系**,升级套餐不会解锁数据库。
+
+**多数用户只有免费库权益 —— 这是常态,不是异常。** 遇到 `restricted` 不要只丢一个
+购买链接了事,先看免费库能不能回答同一个问题,能就给出来并说明口径差异;确实只有商业库
+才有的(中国本土数据、化学品工艺级、汽车行业口径),再说明是哪个库受限、给 `purchase_url`。
+
+### 免费库(任一有效凭据即可取数值)
+
+| 库 | 覆盖 | 什么时候用 |
+|---|---|---|
+| **BAFU** | 瑞士国家清单,覆盖面广、LCIA 指标完整 | **欧洲语境下的免费首选**;要做多指标(不只是碳)时优先它 |
+| **ELCD** | 欧洲参考数据库:材料、能源、运输、生命周期末端 | 欧洲通用材料 |
+| **EF** | 欧盟 Environmental Footprint 参考包 | PEF / OEF 语境,要跟欧盟口径对齐时 |
+| **worldsteel** | 全球钢铁行业平均 | 钢铁,而且免费出数 |
+| **USLCI** / **USDA** | 美国单元过程 / 美国农业与食品 | 美国供应链、农产品 |
+| **AusLCI** / **ozLCI** | 澳大利亚、澳新地区 | 大洋洲 |
+| **NEEDS** / **bioenergiedat** | 欧洲能源情景 / 欧洲生物质能源 | 能源情景分析 |
+| **recycledplastics** | 再生塑料生态档案 | 再生塑料(仅 LCI,无 LCIA 层) |
+
+### 商业库(需对应数据包权益)
+
+| 库 | 覆盖 | 不可替代之处 |
+|---|---|---|
+| **ecoinvent** | 全球参考数据库,覆盖最广 | 多数已发表研究用它;要跟文献对齐时基本绕不开 |
+| **HiQLCD** | 中国全工业体系 | **中国生产场景**,免费库里没有对应物 |
+| **HiQLCD-AL** | 铝产业链(氧化铝→电解铝→加工) | 铝的分环节数据,通用库只有材料级平均 |
+| **CALCD** | 中国汽车生命周期(中汽碳 × 海科) | 整车与零部件的行业口径 |
+| **CarbonMinds** | 化学品与高分子,工艺路线级 | 区分合成路线、原料来源(石油基/生物基/再生) |
+| **Agri-footprint** | 农业与食品 | 农业食品体系(仅 LCI,无 LCIA 层) |
+
+**选库的第一顺位是地域与行业,不是"哪个更权威"。** 中国产地用中国本土库,
+欧洲语境 BAFU 就够用;拿欧洲数据代表中国生产,或反过来,都是常见且严重的错误。
 
 ## 超出本技能范围时
 

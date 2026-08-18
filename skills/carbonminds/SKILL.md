@@ -3,7 +3,7 @@ name: carbonminds
 description: '查询化学品与塑料的工艺级生命周期清单数据。CarbonMinds 覆盖化学品与高分子材料,建模细度到工艺路线层级,适合区分同一聚合物的不同合成路线、原料来源(石油基 / 生物基 / 再生)与地域。用于塑料件与化工产品的碳足迹、材料替代评估、生态设计选材、包装碳排。当任务涉及化学品排放因子、塑料碳足迹、聚合物 LCI、树脂、单体、生物基塑料、再生塑料时使用。触发词:CarbonMinds、化学品、塑料、聚合物、树脂、单体、PP、PE、PET、PVC、ABS、PA、生物基塑料、再生塑料、化工碳足迹。'
 slug: carbonminds
 displayName: 化学品与塑料 LCA 数据 —— CarbonMinds 工艺级清单
-version: 1.1.3
+version: 1.1.4
 summary: 查询化学品与高分子材料的工艺级清单数据,区分合成路线、原料来源与地域,用于塑料件与化工产品碳足迹。
 license: Apache-2.0
 homepage: https://github.com/HiQ-AI/agent-skills
@@ -47,6 +47,10 @@ CarbonMinds 是商业库。**「库里有没有这条工艺、叫什么、什么
 - **不要把 `dataset_key` / `dataset_uuid` 贴给用户看。** 那是给工具用的不透明句柄,
   对人没有意义 —— 展示的是名称、参考流、地域、库+版本+系统模型、数值、链接。
   另注:`dataset_uuid` **不是** `hiq-editor` 里的「背景数据唯一 ID」,别拿去填 `background`。
+
+**本技能只查 CarbonMinds。** 每次 `search` 都要带 `--sources CarbonMinds`,聚合/指标类带
+`--source` 的同理 —— 用户来装这个技能就是冲着这个库来的,混进别的库的候选只会让他
+更难挑。用户明确要求跨库比较时,告诉他主技能 `hiq-cortex-lca` 更合适。
 
 ## 接入
 
