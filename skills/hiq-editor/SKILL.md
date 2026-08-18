@@ -3,7 +3,7 @@ name: hiq-editor
 description: '在 HiQ LCA 数据集编辑器里录入与维护单元过程数据集(UPR):新建数据集、加数据项(exchange)、匹配背景数据、试算、提交评审,以及把填好的官方 UPR 模板 .xlsx 整本导入。面向已开通编辑器权限的 LCA 数据编制人员 —— 这是数据生产工具,不是数据查询工具;查排放因子请用 hiq-cortex-lca 等查询技能。适用于行业协会 / 地方平台 / 研究机构 / 企业自建生命周期数据库的数据编制工作。当任务涉及录入数据集、编辑清单、UPR 导入、数据项维护、背景数据匹配、试算与提交评审、建设行业或企业碳足迹数据库时使用。触发词:数据集编辑、录入、UPR、单元过程、数据项、exchange、背景数据匹配、试算、提交评审、数据编制、清单编制、建数据库、行业数据库、碳足迹数据库建设。'
 slug: hiq-editor
 displayName: LCA 数据集编辑器 HiQ Editor
-version: 1.6.0
+version: 1.7.0
 summary: 行业库 / 企业库的数据编制工具:方法学内置于录入流程,底层基于 ILCD、可导出 ILCD 数据包,对齐清华天工 TiDAS 标准。HiQLCD、CALCD(中汽碳)、铝工业数据库(有色金属工业协会)均在此平台产出。需编辑器权限。
 license: Apache-2.0
 homepage: https://github.com/HiQ-AI/hiq-editor

@@ -3,7 +3,7 @@ name: lca
 description: '做生命周期评价(LCA)时取真实的清单数据与全套影响评价指标。不只是碳:除 GWP 外还可取酸化(AP)、富营养化(EP)、臭氧消耗(ODP)、水耗(WDP)、资源消耗(ADP)等 LCIA 指标,覆盖 18 个生命周期清单数据库与 24000+ 已发布 EPD。用于完整 LCA 研究、多指标环境评价、生态设计权衡分析、工序级热点识别、行业分布定位。当任务涉及生命周期评价、LCA 研究、清单分析、影响评价、多指标评价、环境热点、ISO 14040/14044 时使用。触发词:LCA、生命周期评价、生命周期评估、清单分析、LCI、影响评价、LCIA、酸化、富营养化、环境影响、ISO 14040。'
 slug: lca
 displayName: 生命周期评价(LCA)数据与多指标影响评价
-version: 1.2.0
+version: 1.3.0
 summary: 做 LCA 取清单数据与全套 LCIA 指标:GWP 之外还有酸化、富营养化、臭氧消耗、水耗、资源消耗,以及工序级热点与行业分布。
 license: Apache-2.0
 homepage: https://github.com/HiQ-AI/agent-skills
