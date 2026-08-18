@@ -52,10 +52,12 @@ Or copy the skill directory into your host's skills folder:
 These skills talk to the HiQ Cortex API. The quickest way in is browser sign-in — no registration, no key to create:
 
 ```bash
-python3 scripts/cortex.py login
+curl -fsSL https://download.hiq.earth/cli/hiq-cortex/install.sh | sh   # macOS / Linux
+hiq-cortex login
 ```
 
-One click on the authorization page stores a credential in `~/.hiq/credentials.json` (mode 600); the visible data scope matches that account. For server-side use or CI, register at [hiqlcd.com](https://www.hiqlcd.com/), create an API key in the account console, and export it instead:
+One click on the authorization page stores a credential in
+`~/.config/hiq-cortex/credentials.json` (mode 600); the visible data scope matches that account. For server-side use or CI, register at [hiqlcd.com](https://www.hiqlcd.com/), create an API key in the account console, and export it instead:
 
 ```bash
 export HIQ_API_KEY=sk_xxx
@@ -80,7 +82,7 @@ export HIQ_API_KEY=sk_xxx
 ## Notes
 
 - Skills bundle **no credentials**. Keys come from the environment or the host's config.
-- Scripts use the Python standard library only — no `pip install`.
+- Packages carry nothing but instructions — the client is the CLI, installed once.
 - Issues and contributions welcome via GitHub issues.
 
 ## The CLI
@@ -89,24 +91,23 @@ Query skills drive [`@hiq-ai/hiq-cortex-cli`](https://github.com/HiQ-AI/hiq-cort
 (Apache-2.0):
 
 ```bash
-npx @hiq-ai/hiq-cortex-cli login
-npx @hiq-ai/hiq-cortex-cli search "304 不锈钢"
+hiq-cortex login
+hiq-cortex search "304 不锈钢"
 ```
 
-It used to be a Python script vendored into every package; folding it into one npm package means
-a client fix ships once instead of republishing every skill. Credentials from the old script
-(`~/.hiq/credentials.json`) are still read, so nobody has to sign in again.
+A single self-contained executable — no Node, no Python, nothing else on the machine. Install it
+with the one-liner above, or run `npx @hiq-ai/hiq-cortex-cli <command>` where Node is already
+present.
 
-The bundled `scripts/cortex.py` stays for one or two more releases so anyone on an older install
-keeps working. New instructions use the CLI.
+It used to be a Python script vendored into all sixteen packages; folding it into one CLI means a
+client fix ships once instead of republishing every skill. Credentials written by that script
+(`~/.hiq/credentials.json`) are still read, so nobody has to sign in again.
 
 ## Repo layout
 
 ```
-skills/_shared/cortex.py     # legacy Python client — kept during the transition
-skills/<name>/SKILL.md       # per-skill instructions
-skills/<name>/scripts/       # synced copy of the legacy client (still committed)
-scripts/sync-shared.sh       # only syncs packages that already carry the script
+skills/<name>/SKILL.md       # per-skill instructions — that is the whole package
+scripts/publish-skillhub.sh  # publish to SkillHub (rate-limited, one at a time)
 ```
 
 Each package is deliberately thin: how to call, what to pass, how to read the response. Domain

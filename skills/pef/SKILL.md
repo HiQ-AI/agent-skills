@@ -3,7 +3,7 @@ name: pef
 description: '按欧盟产品环境足迹(PEF / OEF)口径取清单数据与多指标结果。PEF 要求用 Environmental Footprint 参考包的数据与特征化方法,并报告一整套环境影响类别而不只是碳。本技能负责数据获取:用 EF 参考包及其他清单库检索匹配数据集、取 GWP 与酸化富营养化等 LCIA 指标、做同类分布定位,并把库、版本、系统模型、地域逐项交代清楚。当任务涉及 PEF、OEF、产品环境足迹、EF 参考包、欧盟环境足迹、PEFCR、多指标环境评价时使用。触发词:PEF、OEF、产品环境足迹、Environmental Footprint、EF 3.1、PEFCR、欧盟环境足迹、多指标评价、LCIA。'
 slug: pef
 displayName: 产品环境足迹 PEF 数据与多指标评价
-version: 1.3.0
+version: 1.3.1
 summary: 按 PEF/OEF 口径取数:EF 参考包数据集、GWP 与多项 LCIA 指标、同类分布定位,库与口径逐项交代。
 license: Apache-2.0
 homepage: https://github.com/HiQ-AI/agent-skills
