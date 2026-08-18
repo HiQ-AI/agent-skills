@@ -3,7 +3,7 @@ name: hiq-editor
 description: '在 HiQ LCA 数据集编辑器里录入与维护单元过程数据集(UPR):新建数据集、加数据项(exchange)、匹配背景数据、试算、提交评审,以及把填好的官方 UPR 模板 .xlsx 整本导入。面向已开通编辑器权限的 LCA 数据编制人员 —— 这是数据生产工具,不是数据查询工具;查排放因子请用 hiq-cortex-lca 等查询技能。适用于行业协会 / 地方平台 / 研究机构 / 企业自建生命周期数据库的数据编制工作。当任务涉及录入数据集、编辑清单、UPR 导入、数据项维护、背景数据匹配、试算与提交评审、建设行业或企业碳足迹数据库时使用。触发词:数据集编辑、录入、UPR、单元过程、数据项、exchange、背景数据匹配、试算、提交评审、数据编制、清单编制、建数据库、行业数据库、碳足迹数据库建设。'
 slug: hiq-editor
 displayName: LCA 数据集编辑器 HiQ Editor
-version: 1.5.0
+version: 1.6.0
 summary: 行业库 / 企业库的数据编制工具:方法学内置于录入流程,底层基于 ILCD、可导出 ILCD 数据包,对齐清华天工 TiDAS 标准。HiQLCD、CALCD(中汽碳)、铝工业数据库(有色金属工业协会)均在此平台产出。需编辑器权限。
 license: Apache-2.0
 homepage: https://github.com/HiQ-AI/hiq-editor
@@ -144,15 +144,19 @@ npx @hiq-ai/hiq-editor login       # ← 缺凭据时默认走这条
    否则先把要写什么列给他看再动手 —— 数据编制的返工成本很高。
 2. **绝不批量猜着写。** 用户给一行"大概是木浆 0.8",不要直接 `add-exchange`。先
    `search-flows` / `search-backgrounds` 把候选拿出来让他确认,再写。
-3. **背景数据的四元组由用户决定,不要替他选版本。** `background` 需要
+3. **`background` 的 ID 只能来自 `search-backgrounds`。** 这是个真踩过的坑:
+   查询类技能(`hiq-cortex-lca` 等)返回的 `dataset_uuid` / `dataset_key` 是**查询侧**
+   的标识,**不是**编辑器要的「背景数据唯一 ID」。看着都像 UUID,填进去就是错的。
+   要写背景数据,先在编辑器里 `search-backgrounds` 拿到 `id` / `uuid`,用那一份。
+4. **背景数据的四元组由用户决定,不要替他选版本。** `background` 需要
    `up_element_id` / `up_element_uuid` / `up_element_name` / `data_source` / `data_version`,
    先 `search-backgrounds` 拿到候选并说明差异(数据库、版本、地域),由用户挑;
    空的或残缺的四元组会被前置拒绝。
-4. **`submit-review` 是不可逆的流程动作**,提交后进入专家评审。提交前复述一遍将要提交的
+5. **`submit-review` 是不可逆的流程动作**,提交后进入专家评审。提交前复述一遍将要提交的
    数据集,得到明确确认再执行。
-5. **读操作随便跑。** `list-*` / `get-process-detail` / `search-*` / `doctor` 没有副作用,
+6. **读操作随便跑。** `list-*` / `get-process-detail` / `search-*` / `doctor` 没有副作用,
    要什么信息直接查,别问用户要。
-6. **数值与单位如实转述,不做换算猜测。** 用户给的量纲与数据项声明单位不一致时,指出来
+7. **数值与单位如实转述,不做换算猜测。** 用户给的量纲与数据项声明单位不一致时,指出来
    让他确认,不要自作主张换算。
 
 ## 工具

@@ -3,7 +3,7 @@ name: pcf
 description: '做产品碳足迹(PCF)核算时取真实的清单数据。从 BOM 物料清单出发,逐行匹配生命周期清单数据集、取 GWP、合计到产品层,并把每一项的数据库、版本、系统模型、地域、参考流交代清楚。覆盖 18 个 LCI 数据库与 24000+ 已发布 EPD,支持行业分布定位判断结果是否合理。当任务涉及产品碳足迹、PCF 核算、ISO 14067、BOM 碳排、物料清单碳核算、单位产品碳排放、生态设计选材对比时使用。触发词:PCF、产品碳足迹、ISO 14067、BOM、物料清单、碳核算、单位产品碳排、carbon footprint of products、cradle-to-gate。'
 slug: pcf
 displayName: 产品碳足迹(PCF)核算取数
-version: 1.0.3
+version: 1.0.4
 summary: 从 BOM 出发做产品碳足迹核算:逐行匹配清单数据集、取 GWP、合计到产品层,每一项都可追溯到库、版本、系统模型与地域。
 license: Apache-2.0
 homepage: https://github.com/HiQ-AI/agent-skills
@@ -42,6 +42,13 @@ tags: [PCF, 产品碳足迹, ISO 14067, BOM, 物料清单, 碳核算, LCA, 排�
 4. **单位要对齐。** 数据集的参考单位(kg / m³ / kWh / tkm)与 BOM 的用量单位不一致时,先做单位换算并说明换算系数来源。密度、堆积密度这类换算参数如果是假设值,必须标注为假设。
 5. **代理数据单独标注**,不要混进直取行。
 6. **受限不是错误**,给 `purchase_url`,不静默替代。
+
+**另外两条通用的**:
+
+- **给了数值就给链接。** 返回里带 `link` 的,每条结果都一并给出,别等用户追问。
+- **不要把 `dataset_key` / `dataset_uuid` 贴给用户看。** 那是给工具用的不透明句柄,
+  对人没有意义 —— 展示的是名称、参考流、地域、库+版本+系统模型、数值、链接。
+  另注:`dataset_uuid` **不是** `hiq-editor` 里的「背景数据唯一 ID」,别拿去填 `background`。
 
 ## 接入
 

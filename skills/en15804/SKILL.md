@@ -3,7 +3,7 @@ name: en15804
 description: '按 EN 15804 口径处理建材的环境产品声明(EPD)与清单数据。检索 24000+ 已发布 EPD(EPDItaly、ECO Platform、EPD Norge),按声明单位与模块取指标,做同类分布与离群判定;并可取 EN 15804 系统模型下的生命周期清单数据集。用于建材 EPD 编制与第三方审核、建筑 LCA 取数、绿色建筑评价、同类产品对标。当任务涉及 EN 15804、建材 EPD、A1-A3 等模块、声明单位、EPD 审核、建筑材料碳足迹时使用。触发词:EN 15804、EPD、环境产品声明、建材、A1-A3、模块、declared unit、声明单位、EPDItaly、ECO Platform、建筑碳排。'
 slug: en15804
 displayName: 建材 EPD 与 EN 15804 模块化指标
-version: 1.1.2
+version: 1.1.3
 summary: 按 EN 15804 口径检索已发布 EPD 与清单数据:按声明单位和模块取指标、做同类分布与离群判定,用于 EPD 编制、审核与建筑 LCA。
 license: Apache-2.0
 homepage: https://github.com/HiQ-AI/agent-skills
@@ -45,6 +45,13 @@ EPD 部分是完整可用的 —— 编制、审核、对标这些工作不需�
 4. **每个数值都要交代来源**:EPD 注册号 + 声明单位 + 模块 + 有效期,或数据集的库 + 版本 + 系统模型 + 地域。
 5. **样本量小的分布只能作量级参考。** 返回里的 `comparability_note` 会说明 cohort 是否充分,先读它再下结论。
 6. **每个数值都来自本次会话的工具调用**,不凭记忆给 EPD 值或分布。
+
+**另外两条通用的**:
+
+- **给了数值就给链接。** 返回里带 `link` 的,每条结果都一并给出,别等用户追问。
+- **不要把 `dataset_key` / `dataset_uuid` 贴给用户看。** 那是给工具用的不透明句柄,
+  对人没有意义 —— 展示的是名称、参考流、地域、库+版本+系统模型、数值、链接。
+  另注:`dataset_uuid` **不是** `hiq-editor` 里的「背景数据唯一 ID」,别拿去填 `background`。
 
 ## 接入
 

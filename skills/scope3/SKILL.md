@@ -3,7 +3,7 @@ name: scope3
 description: '为企业范围三(Scope 3)温室气体核算取真实的排放因子。采购清单、供应商物料表、外购能源与运输量,逐行匹配生命周期清单数据集并取 GWP,覆盖 18 个 LCI 数据库与 24000+ 已发布 EPD。每一行都可追溯到数据库、版本、系统模型、地域与参考流,供 CDP、ISSB、SBTi 与年度报告核查。当任务涉及范围三、Scope 3、供应链碳排、采购商品与服务、外购品排放、上游排放、企业碳盘查取数时使用。触发词:Scope 3、范围三、供应链碳排放、采购商品与服务、上游排放、企业碳盘查、GHG Protocol、CDP、排放因子。'
 slug: scope3
 displayName: 范围三 Scope 3 供应链排放因子取数
-version: 1.1.2
+version: 1.1.3
 summary: 为企业范围三核算取真实排放因子:采购清单逐行匹配清单数据集、取 GWP、可追溯到库与口径,供 CDP/ISSB/SBTi 报送。
 license: Apache-2.0
 homepage: https://github.com/HiQ-AI/agent-skills
@@ -40,6 +40,13 @@ tags: [Scope3, 范围三, 供应链碳排, 企业碳盘查, GHG Protocol, LCA, �
 4. **单位要对齐。** 采购量单位(件、套、米、吨)与数据集参考单位(kg、m³、kWh、tkm)不一致时先换算,换算系数的来源要写出来;是假设值就标为假设。
 5. **口径不一致不合计。** 系统模型不同的数据不能相加,先读 `comparability_note`。
 6. **受限不是错误**,给 `purchase_url`,不静默替代。
+
+**另外两条通用的**:
+
+- **给了数值就给链接。** 返回里带 `link` 的,每条结果都一并给出,别等用户追问。
+- **不要把 `dataset_key` / `dataset_uuid` 贴给用户看。** 那是给工具用的不透明句柄,
+  对人没有意义 —— 展示的是名称、参考流、地域、库+版本+系统模型、数值、链接。
+  另注:`dataset_uuid` **不是** `hiq-editor` 里的「背景数据唯一 ID」,别拿去填 `background`。
 
 ## 接入
 

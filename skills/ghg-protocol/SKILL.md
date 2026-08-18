@@ -3,7 +3,7 @@ name: ghg-protocol
 description: '为企业温室气体核算(GHG Protocol / ISO 14064)取真实的排放因子。范围一的燃料燃烧、范围二的外购电力与热力、范围三的上游物料与服务,逐项匹配生命周期清单数据集并取 GWP,覆盖 18 个 LCI 数据库。每一项都可追溯到数据库、版本、系统模型、地域与参考流,供 CDP、ISSB、SBTi 与年度报告核查。当任务涉及企业碳盘查、温室气体核算、范围一二三、组织碳排、GHG Protocol、ISO 14064、双碳报告取数时使用。触发词:GHG Protocol、温室气体核算、企业碳盘查、组织碳排、范围一、范围二、范围三、ISO 14064、CDP、SBTi、碳中和报告、排放因子。'
 slug: ghg-protocol
 displayName: 温室气体核算 GHG Protocol 企业碳盘查取数
-version: 1.1.2
+version: 1.1.3
 summary: 为企业碳盘查取排放因子:范围一燃料、范围二电力热力、范围三上游,逐项可追溯到库与口径,供 CDP/ISSB/SBTi 核查。
 license: Apache-2.0
 homepage: https://github.com/HiQ-AI/agent-skills
@@ -49,6 +49,13 @@ tags: [GHG Protocol, 温室气体核算, 企业碳盘查, 范围一, 范围二, 
 5. **单位对齐。** 台账单位(度、吨、立方米、公里)与数据集参考单位不一致时先换算,换算依据要写出来。
 6. **区分数据性质**:实测 / 数据库直取 / 代理,分别标注。
 7. **受限不是错误**,给 `purchase_url`,不静默替代。
+
+**另外两条通用的**:
+
+- **给了数值就给链接。** 返回里带 `link` 的,每条结果都一并给出,别等用户追问。
+- **不要把 `dataset_key` / `dataset_uuid` 贴给用户看。** 那是给工具用的不透明句柄,
+  对人没有意义 —— 展示的是名称、参考流、地域、库+版本+系统模型、数值、链接。
+  另注:`dataset_uuid` **不是** `hiq-editor` 里的「背景数据唯一 ID」,别拿去填 `background`。
 
 ## 接入
 
