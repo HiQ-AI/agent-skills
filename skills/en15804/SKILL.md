@@ -61,11 +61,17 @@ EPD 部分是完整可用的 —— 编制、审核、对标这些工作不需�
 复制粘贴、设环境变量,门槛高出一个量级。把后者摆在第一步会直接劝退用户。
 
 ```bash
-npx @hiq-ai/hiq-cortex-cli login      # ← 缺凭据时默认走这条
+# 没装过 hiq-cortex 就先装 —— 单文件程序,不依赖 node / python
+curl -fsSL https://download.hiq.earth/cli/hiq-cortex/install.sh | sh
+
+hiq-cortex login    # ← 缺凭据时默认走这条
 ```
 
+Windows 的安装命令是 PowerShell 的 `irm https://download.hiq.earth/cli/hiq-cortex/install.ps1 | iex`。
+宿主已经有 Node 时,`npx @hiq-ai/hiq-cortex-cli <命令>` 与 `hiq-cortex <命令>` 完全等价,省掉下载。
+
 命令会打印一个授权链接。**把链接原样给用户,让他点「授权访问」**,然后继续原来的任务 ——
-凭据落在 `~/.hiq/credentials.json`(权限 600),之后所有命令直接可用,可见数据范围与
+凭据落在 `~/.config/hiq-cortex/credentials.json`(权限 600),之后所有命令直接可用,可见数据范围与
 该账号一致(**包含他已开通的商业数据库**)。
 
 只在这三种情况下才提 API key:用户自己说要用 key、运行在 CI / 服务端无浏览器环境、
@@ -81,13 +87,13 @@ export HIQ_API_KEY=sk_xxx            # 服务端 / CI 用;同时存在时优先�
 
 ## 工具
 
-| 需求 | MCP 工具 | 脚本命令 |
+| 需求 | MCP 工具 | CLI 命令 |
 |---|---|---|
-| 找某品类的已发布 EPD | `epd_search` | `epd "<品类>" [--unit m3] [--geo IT] [--limit N]` |
-| 同类分布、离群判定 | `epd_peer_benchmark` | `epd-benchmark "<品类>" --unit m3 [--indicators GWP-total] [--modules A1-A3]` |
-| 建材原料 → 清单数据集 | *(无,走 REST)* | `search "<原话>"` |
-| key → GWP + 基准 | `lookup_datasets` | `lookup <key> [<key> ...]` |
-| 非 GWP 的 LCIA 指标 | `aggregate_indicators` | `indicators <keys> --indicator AP --source X` |
+| 找某品类的已发布 EPD | `epd_search` | `hiq-cortex epd-search --query "<品类>" [--declared-unit m3] [--geography IT] [--limit N]` |
+| 同类分布、离群判定 | `epd_peer_benchmark` | `hiq-cortex epd-peer-benchmark --product-category "<品类>" --declared-unit m3 [--indicators GWP-total] [--modules A1-A3]` |
+| 建材原料 → 清单数据集 | *(无,走 REST)* | `hiq-cortex search "<原话>"` |
+| key → GWP + 基准 | `lookup_datasets` | `hiq-cortex lookup-datasets --dataset-keys <key[,key…]>` |
+| 非 GWP 的 LCIA 指标 | `aggregate_indicators` | `hiq-cortex aggregate-indicators --dataset-keys <keys> --indicator AP --source X` |
 
 `epd_peer_benchmark` 的统计单位是**一个 EPD 注册号**,同一注册号下的多个变体只算一票 —— 分布不会被多变体声明灌水。审自己那份 EPD 时,用 `exclude_registration` 把被审的注册号从 cohort 里剔除,否则它会把分布往自己身上拉。
 

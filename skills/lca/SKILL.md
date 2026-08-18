@@ -62,11 +62,17 @@ tags: [LCA, 生命周期评价, LCI, LCIA, 影响评价, 酸化, 富营养化, �
 复制粘贴、设环境变量,门槛高出一个量级。把后者摆在第一步会直接劝退用户。
 
 ```bash
-npx @hiq-ai/hiq-cortex-cli login      # ← 缺凭据时默认走这条
+# 没装过 hiq-cortex 就先装 —— 单文件程序,不依赖 node / python
+curl -fsSL https://download.hiq.earth/cli/hiq-cortex/install.sh | sh
+
+hiq-cortex login    # ← 缺凭据时默认走这条
 ```
 
+Windows 的安装命令是 PowerShell 的 `irm https://download.hiq.earth/cli/hiq-cortex/install.ps1 | iex`。
+宿主已经有 Node 时,`npx @hiq-ai/hiq-cortex-cli <命令>` 与 `hiq-cortex <命令>` 完全等价,省掉下载。
+
 命令会打印一个授权链接。**把链接原样给用户,让他点「授权访问」**,然后继续原来的任务 ——
-凭据落在 `~/.hiq/credentials.json`(权限 600),之后所有命令直接可用,可见数据范围与
+凭据落在 `~/.config/hiq-cortex/credentials.json`(权限 600),之后所有命令直接可用,可见数据范围与
 该账号一致(**包含他已开通的商业数据库**)。
 
 只在这三种情况下才提 API key:用户自己说要用 key、运行在 CI / 服务端无浏览器环境、
@@ -82,13 +88,13 @@ export HIQ_API_KEY=sk_xxx            # 服务端 / CI 用;同时存在时优先�
 
 ## 工具
 
-| 需求 | MCP 工具 | 脚本命令 |
+| 需求 | MCP 工具 | CLI 命令 |
 |---|---|---|
-| 材料 / 工艺 → 数据集 key | *(无,走 REST)* | `search "<原话>" [--sources X]` |
-| key → GWP + 基准 | `lookup_datasets` | `lookup <key> [<key> ...]` |
-| **非 GWP 的 LCIA 指标**(AP/EP/ODP/WDP/ADP) | `aggregate_indicators` | `indicators <keys> --indicator AP --source X` |
-| 队列分布 / 百分位定位 | `aggregate_datasets` | `aggregate --source X [--target N]` |
-| **工序级热点** | `process_hotspot` | `hotspot <key> [--indicator GWP100]` |
+| 材料 / 工艺 → 数据集 key | *(无,走 REST)* | `hiq-cortex search "<原话>" [--sources X]` |
+| key → GWP + 基准 | `lookup_datasets` | `hiq-cortex lookup-datasets --dataset-keys <key[,key…]>` |
+| **非 GWP 的 LCIA 指标**(AP/EP/ODP/WDP/ADP) | `aggregate_indicators` | `hiq-cortex aggregate-indicators --dataset-keys <keys> --indicator AP --source X` |
+| 队列分布 / 百分位定位 | `aggregate_datasets` | `hiq-cortex aggregate-datasets --where '{"sources":["X"]}' [--target-value N]` |
+| **工序级热点** | `process_hotspot` | `hiq-cortex process-hotspot --dataset-key <key> [--indicator GWP100]` |
 | 已发布 EPD 检索与同类分布 | `epd_search` / `epd_peer_benchmark` | `epd` / `epd-benchmark` |
 
 `process_hotspot` 支持指定指标 —— 找热点时不要只看 GWP,同一个产品在不同指标下的热点工序可能完全不同。

@@ -47,10 +47,19 @@ Available:
 Sign-in is one command plus one click, with no registration. Creating an API key means logging into a console, finding the right page, copying a secret, and setting an environment variable — an order of magnitude more friction. Putting that first is how you lose the user.
 
 ```bash
-npx @hiq-ai/hiq-cortex-cli login   # ← the default when no credential is present
+# Install hiq-cortex first if it is not on the machine — a single file, no
+# Node and no Python needed
+curl -fsSL https://download.hiq.earth/cli/hiq-cortex/install.sh | sh
+
+hiq-cortex login   # ← the default when no credential is present
 ```
 
-The command prints an authorization link. **Hand the link to the user verbatim, have them click "authorize"**, then carry on with the original task. Credentials land in `~/.hiq/credentials.json` (mode 600) and every command works from then on; the visible data scope matches that account, **including any commercial databases it has access to**. `logout` removes them.
+On Windows the installer is PowerShell: `irm https://download.hiq.earth/cli/hiq-cortex/install.ps1 | iex`.
+
+Where the host already has Node, `npx @hiq-ai/hiq-cortex-cli <command>` is
+exactly equivalent to `hiq-cortex <command>` and skips the download.
+
+The command prints an authorization link. **Hand the link to the user verbatim, have them click "authorize"**, then carry on with the original task. Credentials land in `~/.config/hiq-cortex/credentials.json` (mode 600) and every command works from then on; the visible data scope matches that account, **including any commercial databases it has access to**. `logout` removes them.
 
 Only reach for an API key in three cases: the user asks for one, the environment is CI / server-side with no browser, or sign-in failed.
 
@@ -89,15 +98,15 @@ Credentials from `login` work too — replace that line with `"Authorization": "
 
 ## Tools
 
-| Need | MCP tool | Script command |
+| Need | MCP tool | CLI command |
 |---|---|---|
-| Material / BOM line → dataset key | *(none, see below)* | `search "<user's wording>" [--sources X]` |
-| Key → GWP, basis, links | `lookup_datasets` | `lookup <key> [<key> ...]` |
-| Cohort → GWP distribution, percentile positioning | `aggregate_datasets` | `aggregate --source X [--target N]` |
-| Cohort → non-GWP LCIA indicators (AP/EP/ODP/WDP/ADP) | `aggregate_indicators` | `indicators <keys> --indicator AP --source X` |
-| Single dataset → process-level hotspots | `process_hotspot` | `hotspot <key>` |
-| Published EPD search | `epd_search` | `epd "<query>" [--unit m3]` |
-| EPD peer distribution, outlier check | `epd_peer_benchmark` | `epd-benchmark "<category>" --unit m3` |
+| Material / BOM line → dataset key | *(none, see below)* | `hiq-cortex search "<user's wording>" [--sources X]` |
+| Key → GWP, basis, links | `lookup_datasets` | `hiq-cortex lookup-datasets --dataset-keys <key[,key…]>` |
+| Cohort → GWP distribution, percentile positioning | `aggregate_datasets` | `hiq-cortex aggregate-datasets --where '{"sources":["X"]}' [--target-value N]` |
+| Cohort → non-GWP LCIA indicators (AP/EP/ODP/WDP/ADP) | `aggregate_indicators` | `hiq-cortex aggregate-indicators --dataset-keys <keys> --indicator AP --source X` |
+| Single dataset → process-level hotspots | `process_hotspot` | `hiq-cortex process-hotspot --dataset-key <key>` |
+| Published EPD search | `epd_search` | `hiq-cortex epd-search --query "<query>" [--declared-unit m3]` |
+| EPD peer distribution, outlier check | `epd_peer_benchmark` | `hiq-cortex epd-peer-benchmark --product-category "<category>" --declared-unit m3` |
 
 Add `--json` to any script command for the raw payload.
 

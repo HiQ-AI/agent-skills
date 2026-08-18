@@ -49,10 +49,16 @@ tags: [LCA, 碳足迹, 排放因子, EPD, CBAM, 数据分析, ecoinvent, HiQLCD,
 扫码是「跑一条命令 + 浏览器点一下」,无需注册;建 API key 要登录控制台、找入口、复制粘贴、设环境变量,门槛高出一个量级。把后者摆在第一步会直接劝退用户。
 
 ```bash
-npx @hiq-ai/hiq-cortex-cli login    # ← 缺凭据时默认走这条
+# 没装过 hiq-cortex 就先装 —— 单文件程序,不依赖 node / python
+curl -fsSL https://download.hiq.earth/cli/hiq-cortex/install.sh | sh
+
+hiq-cortex login    # ← 缺凭据时默认走这条
 ```
 
-命令会打印一个授权链接。**把链接原样给用户,让他点「授权访问」**,然后继续原来的任务。凭据存在 `~/.hiq/credentials.json`(权限 600),之后所有命令直接可用;可见数据范围与该账号一致,**包含他已开通的商业数据库**。`logout` 删除本机凭据。
+Windows 的安装命令是 PowerShell 的 `irm https://download.hiq.earth/cli/hiq-cortex/install.ps1 | iex`。
+宿主已经有 Node 时,`npx @hiq-ai/hiq-cortex-cli <命令>` 与 `hiq-cortex <命令>` 完全等价,省掉下载。
+
+命令会打印一个授权链接。**把链接原样给用户,让他点「授权访问」**,然后继续原来的任务。凭据存在 `~/.config/hiq-cortex/credentials.json`(权限 600),之后所有命令直接可用;可见数据范围与该账号一致,**包含他已开通的商业数据库**。`logout` 删除本机凭据。
 
 只在这三种情况下才提 API key:用户自己说要用 key、运行在 CI / 服务端无浏览器环境、或扫码登录失败。
 
@@ -91,17 +97,17 @@ curl -sX POST https://x.hiqlcd.com/api/cortex/oauth/token \
 
 ## 工具
 
-| 需求 | MCP 工具 | 脚本命令 |
+| 需求 | MCP 工具 | CLI 命令 |
 |---|---|---|
-| 材料名 / BOM 行 → 数据集 key | *(无,见下)* | `search "<原话>" [--sources X]` |
-| key → GWP、基准、链接 | `lookup_datasets` | `lookup <key> [<key> ...]` |
-| 队列 → GWP 分布、百分位定位 | `aggregate_datasets` | `aggregate --source X [--target N]` |
-| 队列 → 非 GWP 的 LCIA 指标(AP/EP/ODP/WDP/ADP) | `aggregate_indicators` | `indicators <keys> --indicator AP --source X` |
-| 单个数据集 → 工序级热点 | `process_hotspot` | `hotspot <key>` |
-| 已发布 EPD 检索 | `epd_search` | `epd "<关键词>" [--unit m3]` |
-| EPD 同类分布、离群判定 | `epd_peer_benchmark` | `epd-benchmark "<品类>" --unit m3` |
+| 材料名 / BOM 行 → 数据集 key | *(无,见下)* | `hiq-cortex search "<原话>" [--sources X]` |
+| key → GWP、基准、链接 | `lookup_datasets` | `hiq-cortex lookup-datasets --dataset-keys <key[,key…]>` |
+| 队列 → GWP 分布、百分位定位 | `aggregate_datasets` | `hiq-cortex aggregate-datasets --where '{"sources":["X"]}' [--target-value N]` |
+| 队列 → 非 GWP 的 LCIA 指标(AP/EP/ODP/WDP/ADP) | `aggregate_indicators` | `hiq-cortex aggregate-indicators --dataset-keys <keys> --indicator AP --source X` |
+| 单个数据集 → 工序级热点 | `process_hotspot` | `hiq-cortex process-hotspot --dataset-key <key>` |
+| 已发布 EPD 检索 | `epd_search` | `hiq-cortex epd-search --query "<关键词>" [--declared-unit m3]` |
+| EPD 同类分布、离群判定 | `epd_peer_benchmark` | `hiq-cortex epd-peer-benchmark --product-category "<品类>" --declared-unit m3` |
 
-脚本命令加 `--json` 输出原始 payload。
+命令加 `--json` 输出原始 payload。
 
 检索没有对应的 MCP 工具 —— 它是一个 REST 接口,脚本已封装。直接调用:
 
