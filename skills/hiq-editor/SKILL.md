@@ -72,7 +72,7 @@ Life Cycle Assessment Databases》)落到实处就两件事:**透明**与**可�
 本技能把这个平台接到命令行与 agent 上。同一套流程,从「在网页里一条条点」变成:
 
 ```bash
-npx @hiq-ai/hiq-editor import plan.json     # 一本 UPR,一条命令
+hiq-editor import plan.json     # 一本 UPR,一条命令
 ```
 
 失败原地重跑就从断点续上,不会重复写已成功的条目;背景匹配先搜候选、确认后再写;
@@ -127,8 +127,14 @@ SSO token 并把服务端的工具目录展开成子命令。
 **优先扫码登录 —— 不要让用户去翻配置文件或找 token。**
 
 ```bash
-npx @hiq-ai/hiq-editor login       # ← 缺凭据时默认走这条
+# 没装过 hiq-editor 就先装 —— 单文件程序,不依赖 node / python
+curl -fsSL https://download.hiq.earth/cli/hiq-editor/install.sh | sh
+
+hiq-editor login       # ← 缺凭据时默认走这条
 ```
+
+Windows 的安装命令是 PowerShell 的 `irm https://download.hiq.earth/cli/hiq-editor/install.ps1 | iex`。
+宿主已经有 Node 时,`npx @hiq-ai/hiq-editor <命令>` 与 `hiq-editor <命令>` 完全等价,省掉下载。
 
 命令会打印一个二维码与授权链接(deck OAuth device flow)。**把链接原样给用户,让他在
 浏览器完成授权**,凭据存在 `~/.config/hiq-editor/credentials.json`(权限 600),之后所有
@@ -161,15 +167,15 @@ npx @hiq-ai/hiq-editor login       # ← 缺凭据时默认走这条
 
 ## 工具
 
-`npx @hiq-ai/hiq-editor <子命令>`。
+`hiq-editor <子命令>`。
 
 **子命令和它们的参数是运行时从服务端工具目录生成的,本技能刻意不列参数清单** ——
 服务端加字段时不会有一份过时的副本骗你。要参数就当场查:
 
 ```bash
-npx @hiq-ai/hiq-editor list                 # 全部子命令(--json 出 schema)
-npx @hiq-ai/hiq-editor describe add-exchange   # 某个命令的参数说明
-npx @hiq-ai/hiq-editor add-exchange --help     # flags
+hiq-editor list                 # 全部子命令(--json 出 schema)
+hiq-editor describe add-exchange   # 某个命令的参数说明
+hiq-editor add-exchange --help     # flags
 ```
 
 下表只给「什么需求用哪个命令」,参数按上面三条自查。
@@ -212,8 +218,8 @@ npx @hiq-ai/hiq-editor add-exchange --help     # flags
 一条命令跑完整套录入序列(建数据集 → 参考产品 → 逐条数据项 → 可选试算),**带断点续跑**:
 
 ```bash
-npx @hiq-ai/hiq-editor import plan.json --dry-run   # 先验证并打印步骤,不写
-npx @hiq-ai/hiq-editor import plan.json             # 真正执行
+hiq-editor import plan.json --dry-run   # 先验证并打印步骤,不写
+hiq-editor import plan.json             # 真正执行
 ```
 
 - 每写成功一步就更新 `<plan>.state.json`,失败后**用同样的命令重跑即可续上**,全部成功后

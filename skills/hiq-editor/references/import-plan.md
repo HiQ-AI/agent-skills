@@ -4,8 +4,8 @@
 **带断点续跑**。适合数据项多、需要反复调整的场景。
 
 ```bash
-npx @hiq-ai/hiq-editor import plan.json --dry-run   # 只验证 + 打印步骤,不写
-npx @hiq-ai/hiq-editor import plan.json             # 执行
+hiq-editor import plan.json --dry-run   # 只验证 + 打印步骤,不写
+hiq-editor import plan.json             # 执行
 ```
 
 ## 结构
@@ -59,7 +59,7 @@ npx @hiq-ai/hiq-editor import plan.json             # 执行
 不是 import 的职责:
 
 ```bash
-npx @hiq-ai/hiq-editor search-backgrounds --keyword 木浆 --json
+hiq-editor search-backgrounds --keyword 木浆 --json
 ```
 
 从 `data` 里挑,把选中那条的 id / uuid / name / 库 / 版本填进 plan。
@@ -73,9 +73,9 @@ npx @hiq-ai/hiq-editor search-backgrounds --keyword 木浆 --json
 全部成功后状态文件自动删除。
 
 ```bash
-npx @hiq-ai/hiq-editor import plan.json     # 第 12 条失败
+hiq-editor import plan.json     # 第 12 条失败
 # 就地改 plan.json 里第 12 条
-npx @hiq-ai/hiq-editor import plan.json     # 同样的命令,从第 12 条继续
+hiq-editor import plan.json     # 同样的命令,从第 12 条继续
 ```
 
 三条纪律:
@@ -89,7 +89,7 @@ npx @hiq-ai/hiq-editor import plan.json     # 同样的命令,从第 12 条继�
 ## 挂到已有数据集
 
 ```bash
-npx @hiq-ai/hiq-editor import plan.json --process-id <id>
+hiq-editor import plan.json --process-id <id>
 ```
 
 跳过建数据集,把 `exchanges[]` 追加到指定数据集上。plan 里的 `process` 段此时被忽略。
@@ -97,7 +97,7 @@ npx @hiq-ai/hiq-editor import plan.json --process-id <id>
 ## 先 dry-run
 
 ```bash
-npx @hiq-ai/hiq-editor import plan.json --dry-run
+hiq-editor import plan.json --dry-run
 ```
 
 验证 plan 结构、打印将要执行的步骤,**不写任何东西**。这是写入前唯一能发现计划错误的机会 ——
@@ -106,7 +106,7 @@ npx @hiq-ai/hiq-editor import plan.json --dry-run
 ## 管道用法
 
 ```bash
-cat plan.json | npx @hiq-ai/hiq-editor import --stdin --state /abs/path/run.state.json
+cat plan.json | hiq-editor import --stdin --state /abs/path/run.state.json
 ```
 
 `--stdin` 从标准输入读 plan,此时**必须显式给 `--state`**(否则没有地方记录断点)。
