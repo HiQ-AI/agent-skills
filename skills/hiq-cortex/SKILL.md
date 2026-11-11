@@ -75,7 +75,7 @@ environmental-data login --json    # ← 缺凭据或服务端拒绝凭据时走
 
 `login` 是设备授权:授权链接与用户码打在 stderr,进程会一直等到用户授权或过期。**把返回的真实链接做成可点击的 Markdown 链接给用户,由他本人点授权**,不要替他授权、不要自己拼链接;进程成功退出后直接继续原来的任务,别停在「登录成功」。`epd-data` 有自己的 `doctor` / `login`;EPD 检索公开可用,`lookup` 需要登录。
 
-数值读取(`lookup` 的 GWP、`lci`、`lcia`)只认 `login` 的凭据:**API key(`QUERYING_LCA_DATASETS_API_KEY`)读不了数值**,设了就 unset 再用 `login`。注册用户都能读免费库的数值;商业库数值还要账号已由海科开通 Environmental Data CLI 的商业数据访问,且只限账号已有的数据包权益,否则返回 `restricted`。
+`lookup`(含 GWP100)可以用 API key(`QUERYING_LCA_DATASETS_API_KEY`),数值按该 key 自己的权益与调用额度返回;**`lci`、`lcia`、`methods` 不接受 API key,只认 `login` 的凭据**。注册用户都能读免费库的数值;商业库数值还要账号已由海科开通 Environmental Data CLI 的商业数据访问,且只限账号已有的数据包权益,否则返回 `restricted`。
 
 凭据由 CLI 自己保存 —— **绝不硬编码进为用户生成的文件,不在输出里回显,不从别的客户端借 token**。
 
@@ -156,7 +156,7 @@ environmental-data login --json    # ← 缺凭据或服务端拒绝凭据时走
 | 层级 | 内容 | 要求 |
 |---|---|---|
 | 目录层 | 全部 18 个库的清单、版本、系统模型、LCIA 覆盖;数据集名称、单位、地域 | 登录即可,无需权益 |
-| 免费库数值 | BAFU、USLCI、ELCD、EF、AusLCI、NEEDS、ozLCI、worldsteel、USDA、bioenergiedat、recycledplastics 的 GWP、LCIA 与清单 | 任一登录账号(API key 不行) |
+| 免费库数值 | BAFU、USLCI、ELCD、EF、AusLCI、NEEDS、ozLCI、worldsteel、USDA、bioenergiedat、recycledplastics 的 GWP、LCIA 与清单 | 任一登录账号(`lookup` 也可用 API key;`lci` / `lcia` 需登录) |
 | 商业库数值 | ecoinvent、HiQLCD、HiQLCD-AL、CALCD(汽车)、CarbonMinds、Agri-footprint | 账号已开通 CLI 商业数据访问 + 对应数据包权益 |
 
 数据包权益与订阅套餐是**两套独立体系**,升级套餐不会解锁数据库。
@@ -223,7 +223,7 @@ environmental-data login --json    # ← 缺凭据或服务端拒绝凭据时走
 |---|---|---|
 | `command not found` | 没装 CLI | 按「接入」安装固定版本 |
 | 认证错误 / `doctor` exit 2 | 本机没有凭据,或凭据被拒 | `environmental-data login --json`,用户授权后继续原任务 |
-| 设了 `QUERYING_LCA_DATASETS_API_KEY` 仍读不到数值 | API key 读不了数值 | unset 后改用 `login` |
+| 设了 `QUERYING_LCA_DATASETS_API_KEY` 时 `lci` / `lcia` / `methods` 被拒 | 这三个命令不接受 API key(`lookup` 可以) | 用 `login` 的凭据跑这三个命令 |
 | `restricted: true` | 本账号读不到该库数值(看 `reason`:商业库要账号已开通 CLI 商业数据访问且有该库数据包) | 如实说明;先看免费库能否回答同一问题 |
 | 授权后仍读不到商业库 | 账号未开通 CLI 商业数据访问,或没有那个数据包权益 | 登录只换凭据,不改变权益;如实说明受限原因,不要反复登录或换账号 |
 | `lcia` 没有数据 | methodId 不对,或该库没有 LCIA 层 | 先 `methods <库代码>`,再用返回的 methodId;看 `methodIdsWithData` |

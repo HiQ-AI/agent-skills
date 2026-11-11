@@ -74,8 +74,9 @@ carries instructions; the program is still installed as above).
 Every registered user can read free-database values (BAFU, USLCI, ELCD, EF, worldsteel, USDA and more). Commercial
 values additionally require that HiQ has enabled Environmental Data CLI commercial access for the account, and stay
 limited to its data packages — the skills surface restricted rows clearly instead of failing; data packages are
-listed [here](https://carbonx.hiqlcd.com/price). API keys (`QUERYING_LCA_DATASETS_API_KEY`) cannot read numeric
-values; use `login`.
+listed [here](https://carbonx.hiqlcd.com/price). `lookup` (including GWP100) also works
+with an API key (`QUERYING_LCA_DATASETS_API_KEY`), within that key's entitlements and quota; `lci`, `lcia` and
+`methods` reject API keys and need `login`.
 
 The old `hiq-cortex` / `@hiq-ai/hiq-cortex-cli` client and the Cortex MCP endpoint
 (`https://x.hiqlcd.com/api/cortex/mcp`, shutting down 2026-11-25) are retired and no longer used by these skills.

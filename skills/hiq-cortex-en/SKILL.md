@@ -72,7 +72,7 @@ environmental-data login --json    # ← the default when credentials are missin
 
 `login` is a device flow: the authorization URL and user code go to stderr, and the process waits until the user approves or the code expires. **Give the user the actual returned URL as a clickable Markdown link and let them approve it themselves** — never approve on their behalf or construct a URL. When the process exits successfully, carry on with the original task; do not stop at "signed in". `epd-data` has its own `doctor` / `login`; EPD search is public, `lookup` needs sign-in.
 
-Numeric reads (`lookup` GWP, `lci`, `lcia`) accept only `login` credentials: **an API key (`QUERYING_LCA_DATASETS_API_KEY`) cannot read numbers** — unset it and use `login`. Every registered user can read free-database values; commercial values additionally require that HiQ has enabled Environmental Data CLI commercial access for the account, and stay limited to the account's data packages — otherwise rows come back `restricted`.
+`lookup` (including the GWP100) works with an API key (`QUERYING_LCA_DATASETS_API_KEY`), following that key's own entitlements and API quota; **`lci`, `lcia` and `methods` reject API keys and need the `login` credential**. Every registered user can read free-database values; commercial values additionally require that HiQ has enabled Environmental Data CLI commercial access for the account, and stay limited to the account's data packages — otherwise rows come back `restricted`.
 
 The CLI stores its own credential — **never hard-code credentials into files generated for the user, never echo them, never borrow a token from another client**.
 
@@ -137,7 +137,7 @@ Only ask when a single dataset must be finalised and the remaining ambiguity wou
 | Tier | Content | Requirement |
 |---|---|---|
 | Catalogue | All 18 databases: inventory, versions, system models, LCIA coverage; dataset names, units, geographies | Sign-in, no data package |
-| Free database values | GWP, LCIA and inventory for BAFU, USLCI, ELCD, EF, AusLCI, NEEDS, ozLCI, worldsteel, USDA, bioenergiedat, recycledplastics | Any signed-in account (not an API key) |
+| Free database values | GWP, LCIA and inventory for BAFU, USLCI, ELCD, EF, AusLCI, NEEDS, ozLCI, worldsteel, USDA, bioenergiedat, recycledplastics | Any signed-in account (`lookup` also works with an API key; `lci` / `lcia` need sign-in) |
 | Commercial database values | GWP, LCIA and inventory for Ecoinvent, HiQLCD, HiQLCD-AL, CALCD (automotive), CarbonMinds, Agri-footprint | CLI commercial access enabled for the account + matching data package |
 
 Data packages and subscription plans are **two separate systems** — upgrading a plan does not unlock a database. When something is restricted, name the database and the reason, point to [data packages](https://carbonx.hiqlcd.com/price), and offer a free-database path if one answers the same question, labelled as a substitution.
@@ -157,7 +157,7 @@ Write for LCA practitioners, like a knowledgeable peer.
 |---|---|---|
 | `command not found` | CLI not installed | Install the pinned version per "Access" |
 | Authentication error / `doctor` exit 2 | No local credential, or it was rejected | `environmental-data login --json`; continue the task after the user approves |
-| Numbers refused with `QUERYING_LCA_DATASETS_API_KEY` set | API keys cannot read numbers | Unset it and use `login` |
+| `lci` / `lcia` / `methods` refused with `QUERYING_LCA_DATASETS_API_KEY` set | These commands reject API keys (`lookup` accepts them) | Run them with the `login` credential |
 | `restricted: true` | This account cannot read that database's values (see `reason`: commercial values need CLI commercial access enabled plus the data package) | Say so; check whether a free database answers the same question |
 | Still no commercial data after login | CLI commercial access not enabled, or no such data package | Login changes credentials, not entitlements; report the restriction, do not log in again or switch accounts |
 | `lcia` returns no data | Wrong methodId, or the database has no LCIA layer | Run `methods <code>` first; check `methodIdsWithData` |
