@@ -3,7 +3,7 @@ name: carbonminds
 description: '查询化学品与塑料的工艺级生命周期清单数据。CarbonMinds 覆盖化学品与高分子材料,建模细度到工艺路线层级,适合区分同一聚合物的不同合成路线、原料来源(石油基 / 生物基 / 再生)与地域。用于塑料件与化工产品的碳足迹、材料替代评估、生态设计选材、包装碳排。当任务涉及化学品排放因子、塑料碳足迹、聚合物 LCI、树脂、单体、生物基塑料、再生塑料时使用。触发词:CarbonMinds、化学品、塑料、聚合物、树脂、单体、PP、PE、PET、PVC、ABS、PA、生物基塑料、再生塑料、化工碳足迹。'
 slug: carbonminds
 displayName: 化学品与塑料 LCA 数据 —— CarbonMinds 工艺级清单
-version: 1.3.1
+version: 1.4.0
 summary: 查询化学品与高分子材料的工艺级清单数据,区分合成路线、原料来源与地域,用于塑料件与化工产品碳足迹。
 license: Apache-2.0
 homepage: https://github.com/HiQ-AI/agent-skills
@@ -20,18 +20,18 @@ CarbonMinds 的价值就在这里:它把化学品与高分子建模到工艺路�
 
 本技能接入 **HiQ Cortex** —— [海科数据](https://www.hiqlcd.com/)的 LCA 数据智能服务。海科数据是国内 LCA 基础数据与碳足迹服务提供商,自建中国本土生命周期清单数据库,并聚合 CarbonMinds 在内的 18 个国际主流数据源与 24000+ 已发布 EPD。
 
-**检索与候选排序在服务端完成。** 把材料名或牌号原样交给检索接口 —— 商品名到化学名的映射、路线判别、候选排序都在服务端执行,返回带 `fit` 匹配质量与 `summary` 说明。
+**默认检索是按名称的词法检索,候选是否合用由你判定。** 检索词里写标准名(中英文都写更好),库、地域用参数限定。商品名、牌号要映射到化学名时,原样交给 `--assist` —— 它走 Cortex 匹配流程,解释条件并校验候选,返回带 `fit` 匹配证据与 `summary` 说明,但要数十秒。
 
 ## 数据权限 —— 先说清楚
 
 | 层 | 内容 | 要求 |
 |---|---|---|
-| 目录层 | CarbonMinds 的版本、系统模型、LCIA 覆盖;数据集名称、参考流、单位、地域 | 有效凭据即可 |
-| 数值层 | GWP、LCIA 值、队列分布 | **需 CarbonMinds 数据包权益** |
+| 目录层 | CarbonMinds 的版本、系统模型、LCIA 覆盖;数据集名称、参考流、单位、地域 | 登录即可 |
+| 数值层 | GWP、LCIA 值 | **需 CarbonMinds 数据包权益** |
 
 CarbonMinds 是商业库。**「库里有没有这条工艺、叫什么、什么口径」免费;「数值是多少」需要权益。**
 
-无权益时 `lookup` 返回 `restricted: true`、聚合返回 `status: "empty"` 且带 `entitlement`,都含 `purchase_url`。如实说明并给链接;免费库(BAFU、ELCD、EF)也有常见聚合物的数据,可作替代路径,但**必须说明这是替代,且工艺细度不同** —— 免费库通常只有材料级平均值,做不了路线区分。
+无权益时 `lookup` / `lcia` 返回 `restricted: true` 及原因(`reason`)。如实说明;免费库(BAFU、ELCD、EF)也有常见聚合物的数据,可作替代路径,但**必须说明这是替代,且工艺细度不同** —— 免费库通常只有材料级平均值,做不了路线区分。
 
 ## 硬规则
 
@@ -39,75 +39,84 @@ CarbonMinds 是商业库。**「库里有没有这条工艺、叫什么、什么
 2. **每个数值都要交代基准**:数据库 + 版本 + 系统模型 + 地域 + 参考流。版本以 `lookup` 返回为准。
 3. **路线不同的数据分别报,不要平均。** 用户问某种塑料时,如果候选里有多条不同工艺路线,把它们并列展示并说明区别来自哪个维度,不要自己挑一条或取中间值。
 4. **先读数据集名称和参考流。** 单体与聚合物、粒料与制品、不同牌号在库里是不同条目。
-5. **受限不是错误**,给 `purchase_url`,不静默替代。
+5. **受限不是错误**,说明是哪个库受限、原因是什么,不静默替代。
 
 **另外两条通用的**:
 
-- **给了数值就给链接。** 返回里带 `link` 的,每条结果都一并给出,别等用户追问。
-- **不要把 `dataset_key` / `dataset_uuid` 贴给用户看。** 那是给工具用的不透明句柄,
+- **给了数值就给链接。** 返回里带 `webUrl` 的,每条结果都一并给出,别等用户追问。
+- **不要把 `datasetRef` / `epd_key` / `activityUuid` 贴给用户看。** 那是给工具用的不透明句柄,
   对人没有意义 —— 展示的是名称、参考流、地域、库+版本+系统模型、数值、链接。
-  另注:`dataset_uuid` **不是** `hiq-editor` 里的「背景数据唯一 ID」,别拿去填 `background`。
+  另注:`activityUuid` **不是** `hiq-editor` 里的「背景数据唯一 ID」,别拿去填 `background`。
 
-**本技能只查 CarbonMinds。** 每次 `search` 都要带 `--sources CarbonMinds`,聚合/指标类带
-`--source` 的同理 —— 用户来装这个技能就是冲着这个库来的,混进别的库的候选只会让他
+**本技能只查 CarbonMinds。** 每次 `search` 都要带 `--sources carbonminds`,`methods` 也查 `carbonminds` —— 用户来装这个技能就是冲着这个库来的,混进别的库的候选只会让他
 更难挑。用户明确要求跨库比较时,告诉他主技能 `hiq-cortex-lca` 更合适。
 
 ## 接入
 
-**没有凭据时,第一句话就给扫码登录 —— 不要让用户去控制台建 API key。**
+数据经 **Environmental Data CLI** 读取,两个单文件程序,不依赖 node / python:
 
-扫码是「跑一条命令 + 浏览器点一下」,无需注册;建 API key 要登录控制台、找入口、
-复制粘贴、设环境变量,门槛高出一个量级。把后者摆在第一步会直接劝退用户。
+- `environmental-data` —— 背景数据库(生命周期清单数据集),用 `--sources` 选库;
+- `epd-data` —— 已发布 EPD。
 
-```bash
-# 没装过 hiq-cortex 就先装 —— 单文件程序,不依赖 node / python
-curl -fsSL https://download.hiq.earth/cli/hiq-cortex/install.sh | sh
-
-hiq-cortex login    # ← 缺凭据时默认走这条
-```
-
-Windows 的安装命令是 PowerShell 的 `irm https://download.hiq.earth/cli/hiq-cortex/install.ps1 | iex`。
-宿主已经有 Node 时,`npx @hiq-ai/hiq-cortex-cli <命令>` 与 `hiq-cortex <命令>` 完全等价,省掉下载。
-
-命令会打印一个授权链接。**把链接原样给用户,让他点「授权访问」**,然后继续原来的任务 ——
-凭据落在 `~/.config/hiq-cortex/credentials.json`(权限 600),之后所有命令直接可用,可见数据范围与
-该账号一致(**包含他已开通的商业数据库**)。
-
-只在这三种情况下才提 API key:用户自己说要用 key、运行在 CI / 服务端无浏览器环境、
-或扫码登录失败。
+**没装就先装。** 安装脚本按版本固定,带 SHA256:下载到新建的空目录、校验、读过脚本再执行,不要 `curl … | sh`。
 
 ```bash
-export HIQ_API_KEY=sk_xxx            # 服务端 / CI 用;同时存在时优先于扫码凭据
+d=$(mktemp -d)
+curl -fsSL -o "$d/install.sh" https://download.hiq.earth/cli/environmental-data/releases/v0.9.0/environmental-data/install.sh
+shasum -a 256 "$d/install.sh"   # 必须是 f13f1d47dd9e5a638a346d70d78bc4b5ba4053dd84192e4083b1153ae244924e
+sh "$d/install.sh"
 ```
 
-宿主支持 MCP 时优先用 MCP —— 若当前会话已有 `lookup_datasets`、`aggregate_datasets` 等工具就直接用;没有则把 `https://x.hiqlcd.com/api/cortex/mcp` 配进宿主的 MCP 配置(header 用 `X-API-Key`,或用扫码登录凭据的 `Authorization: Bearer`),配置方式见 [README](https://github.com/HiQ-AI/agent-skills)。
+`epd-data` 把路径里的 `environmental-data/install.sh` 换成 `epd-data/install.sh`,SHA256 必须是
+`5e97bdaee937b76545b0c031a95b425282375ac594d09f76260f6f9197000b3c`。Windows 用同目录的 `install.ps1`
+(`environmental-data` 为 `e0666f09ab802bbe1d9b871a9100e4d2a5a79512b91518e416cd803128a93f8d`,`epd-data` 为
+`5d220436ec88aadd31a28892d53af9f0a3072cc76474367e600d7d92e94c9d3b`),`Get-FileHash -Algorithm SHA256` 校验后
+`powershell.exe -NoProfile -File <脚本绝对路径>`。各平台归档与校验值以
+[installation.json](https://github.com/HiQ-AI/environmental-data/blob/main/plugins/environmental-data/skills/environmental-data-query/references/installation.json)
+为准。
 
-凭据只从环境变量、宿主配置或 `login` 落盘的那份读取 —— **绝不硬编码进为用户生成的文件,也不在输出里回显**。
+**没有凭据时,第一步就是 `login` —— 不要让用户去控制台建 API key。**
+
+```bash
+environmental-data doctor          # exit 0 = 本机有凭据;exit 2 = 没有(不代表服务端权限)
+environmental-data login --json    # ← 缺凭据或服务端拒绝凭据时走这条
+```
+
+`login` 是设备授权:授权链接与用户码打在 stderr,进程会一直等到用户授权或过期。**把返回的真实链接做成可点击的 Markdown 链接给用户,由他本人点授权**,不要替他授权、不要自己拼链接;进程成功退出后直接继续原来的任务,别停在「登录成功」。`epd-data` 有自己的 `doctor` / `login`;EPD 检索公开可用,`lookup` 需要登录。
+
+数值读取(`lookup` 的 GWP、`lci`、`lcia`)只认 `login` 的凭据:**API key(`QUERYING_LCA_DATASETS_API_KEY`)读不了数值**,设了就 unset 再用 `login`。注册用户都能读免费库的数值;商业库数值还要账号已由海科开通 Environmental Data CLI 的商业数据访问,且只限账号已有的数据包权益,否则返回 `restricted`。
+
+凭据由 CLI 自己保存 —— **绝不硬编码进为用户生成的文件,不在输出里回显,不从别的客户端借 token**。
 
 ## 工具
 
-| 需求 | MCP 工具 | CLI 命令 |
-|---|---|---|
-| 材料名 / 牌号 → 数据集 key | *(无,走 REST)* | `hiq-cortex search "<原话>" --sources CarbonMinds` |
-| key → GWP + 基准 | `lookup_datasets` | `hiq-cortex lookup-datasets --dataset-keys <key[,key…]>` |
-| 同品类分布 / 数值定位 | `aggregate_datasets` | `hiq-cortex aggregate-datasets --where '{"sources":["carbonminds"]}' [--target-value N]` |
-| 非 GWP 的 LCIA 指标 | `aggregate_indicators` | `hiq-cortex aggregate-indicators --dataset-keys <keys> --indicator AP --source carbonminds` |
-| 工序级热点 | `process_hotspot` | `hiq-cortex process-hotspot --dataset-key <key> --source carbonminds` |
+| 需求 | 命令 |
+|---|---|
+| 材料名 / 牌号 → 候选数据集 | `environmental-data search '<检索词>' --sources 'carbonminds' --json` |
+| 原话含糊,要服务端理解需求再匹配 | 同上加 `--assist`(数十秒) |
+| key → 详情、GWP100、链接 | `environmental-data lookup '<key1,key2,…>' --json`(一次 1–200 个) |
+| 非 GWP 的 LCIA 指标 | `environmental-data methods <库代码>` 查 methodId → `environmental-data lcia '<key[,key…]>' --method '<methodId>' --json` |
+| 过程贡献 / 热点(分阶段) | `environmental-data lcia '<key>' --contributions --method '<methodId>' --json` |
 
-检索是 REST 接口(`POST https://x.hiqlcd.com/api/cortex/search`,SSE 返回,解析 `WorkflowCompleted` 事件的 `content`)。**耗时 20–40 秒属正常**,不要并发重试。
+默认检索直连数据服务,约一秒返回,是按名称的词法检索:检索词里写产品 / 工艺名(中英文名都写更好),库、系统模型、地域用 `--sources` / `--model` / `--location` 限定。它不判断需求 —— 每条候选是否合用,由你对照需求判定。`--assist` 把原话交给 Cortex 匹配流程,解释条件并校验候选,返回带 `fit` 与 `summary`,但要数十秒,且不能与 `--location` / `--limit` / `--cursor` / `--collapse` 同用。
 
-`dataset_key` 是不透明句柄,原样传递;版本升级后旧 key 进 `missing_keys`,重新检索。
+`--sources` 用小写库代码,多个用 `|` 连在**一个**参数里(如 `'hiqlcd|hiqlcd-al'`);指定版本写 `库代码:版本`,版本号用 `environmental-data sources --json` 返回的完整写法。methodId 不要猜:先 `methods <库代码>`,或看 `lcia` 返回的 `methodIdsWithData`。
+
+`datasetRef` 是不透明句柄,原样传递,绝不自行拼接或修改。默认输出是预览(每个数组最多 10 行,省略描述类字段,`coverage.omitted` 标出省略了什么),需要全部内容加 `--full`。
 
 ## 怎么读返回
 
 | 字段 | 含义 | 该怎么做 |
 |---|---|---|
-| `summary` | 服务端对本次检索的说明 | 转述,不要另编一套 |
-| `fit: high / medium / low` | 匹配质量 | `low` 引用前先确认 |
-| `name` / `ref_product` / `location` | 数据集名、参考流、地域 | 引用前必读 —— 单体与聚合物是不同条目 |
-| `restricted: true` | 无 CarbonMinds 权益 | 给 `purchase_url`,替代方案要说明细度差异 |
-| `comparability_note` | 队列可比性说明 | 对比前必读 |
-| `missing_keys` | key 来自旧版本目录 | 重新检索 |
+| `datasetRef` | 数据集句柄 | `lookup` / `lci` / `lcia` 时原样传,**不展示给用户** |
+| `name` / `referenceProduct` / `location` | 名称、参考流(名称 / 单位 / 数量)、地域 | 引用前必读 —— 单体与聚合物是不同条目 |
+| `source.code` / `source.version` / `systemModel.code` | 库 / 版本 / 系统模型 | 这就是要交代的基准,直接取,别自己拼 |
+| `searchEvidence` | 默认检索的词法得分 | 不是匹配质量,候选是否合用自己判定 |
+| `fit` / `summary`(仅 `--assist`) | 服务端的匹配证据与说明 | `low` 引用前先确认 |
+| `headlineGwp` | `lookup` 给的 GWP100:`value` / `unit` / `method` | 数值连同方法一起引用 |
+| `restricted: true` + `reason` | 有数据,但本账号读不到 | 说明受限及原因,替代方案要说明细度差异 |
+| `webUrl` | 数据集详情页 | **每条结果都带上**,别等用户要;没有就如实说没有,不要自己拼 |
+| `data.coverage.missingKeys` | 请求的 key 没有返回 | 重新检索,不要手改 key |
 
 ## 什么时候该问用户
 
@@ -127,11 +136,10 @@ export HIQ_API_KEY=sk_xxx            # 服务端 / CI 用;同时存在时优先�
 
 | 现象 | 原因 | 处理 |
 |---|---|---|
-| `restricted: true` | 无 CarbonMinds 数据包权益 | 给 `purchase_url`;免费库可替代但要说明细度不同 |
-| 聚合 `status: "empty"` **且带** `entitlement` | 权益问题 | 不要换谓词重试 |
-| 聚合 `status: "empty"` **不带** `entitlement` | 谓词没命中 | 放宽谓词 |
-| `indicators` 返回空 | `--source` 必须等于队列所在库 | 传 `--source carbonminds` |
+| `restricted: true` | 本账号读不到该库数值(看 `reason`:商业库要账号已开通 CLI 商业数据访问且有该库数据包) | 如实说明;免费库可替代但要说明细度不同 |
+| `lcia` 没有数据 | methodId 不对,或该库没有 LCIA 层 | `methods carbonminds` 查 methodId,看 `methodIdsWithData` |
 | 候选里全是单体 | 检索词落在原料层 | 用聚合物名或制品描述重新检索 |
-| `missing_keys` 非空 | key 来自旧版本目录 | 重新检索 |
-| `401 {"code":"INT-007"}` | 用了 Bearer 或 key 无效 | 改用 `X-API-Key` |
-| CDN `error 1010` | 默认 User-Agent 被拦 | 内置脚本已设;直接调用时自带常规 User-Agent |
+| `missingKeys` 非空 | key 不在当前目录(多为旧版本) | 重新检索,不要手改 key |
+| `command not found` | 没装 CLI | 按「接入」安装固定版本 |
+| 认证错误 / `doctor` exit 2 | 本机没有凭据,或凭据被拒 | `environmental-data login --json`,用户授权后继续原任务 |
+| 设了 `QUERYING_LCA_DATASETS_API_KEY` 仍读不到数值 | API key 读不了数值 | unset 后改用 `login` |

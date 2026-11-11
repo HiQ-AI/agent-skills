@@ -4,7 +4,7 @@
 # hiq-cortex-en 不在这里 —— 英文版走 ClawHub / npx skills 那条线,slug 也是那边的
 # `hiq-cortex`,发到 SkillHub 只会撞上被企业账号占死的同名 slug。
 cd "$(dirname "$0")/.."
-CL="命令名与参数按线上实际改正(原来是旧脚本的名字,照着写会失败);CLI 改为单文件二进制,一行安装,不再要求宿主有 node"
+CL="数据查询改用 Environmental Data CLI(environmental-data / epd-data),移除旧 hiq-cortex CLI 与 Cortex MCP 接入;去掉已下线的队列分布、百分位与 EPD 同类分布能力"
 SKIP="hiq-cortex-en"
 # 断在中间时把已发的名字塞进 PUBLISHED 再跑,不用从头来
 DONE="${PUBLISHED:-}"
