@@ -1,10 +1,10 @@
 ---
 name: hiq-cortex
-description: '查询真实的 LCA 排放因子与碳足迹数据,覆盖 18 个生命周期清单数据库(Ecoinvent、BAFU、USLCI、ELCD、EF、worldsteel、AusLCI、HiQLCD 等)和 24000+ 已发布 EPD。当任务需要真实排放因子而不是凭记忆给数时使用:物料 GWP 查询、产品碳足迹、BOM 碳核算、行业对标与百分位定位、生产路线对比(转炉钢与电炉钢、原生铝与再生铝、灰氢与绿氢)、EPD 同类审核、CBAM 与 EN 15804 相关工作。触发词:碳足迹、排放因子、清单数据、物料清单、行业对标、碳排、GWP、kg CO2e、emission factor、carbon footprint、LCA dataset、LCI、EPD。'
+description: '查询真实的 LCA 排放因子与碳足迹数据,覆盖 18 个生命周期清单数据库(Ecoinvent、BAFU、USLCI、ELCD、EF、worldsteel、AusLCI、HiQLCD 等)和 24000+ 已发布 EPD。当任务需要真实排放因子而不是凭记忆给数时使用:物料 GWP 查询、产品碳足迹、BOM 碳核算、候选数据集并列对比、生产路线对比(转炉钢与电炉钢、原生铝与再生铝、灰氢与绿氢)、EPD 同类审核、CBAM 与 EN 15804 相关工作。触发词:碳足迹、排放因子、清单数据、物料清单、行业对标、碳排、GWP、kg CO2e、emission factor、carbon footprint、LCA dataset、LCI、EPD。'
 slug: hiq-cortex-lca
 displayName: HiQ Cortex — LCA 数据查询
-version: 1.10.1
-summary: 从 18 个 LCA 数据库和 24000+ 已发布 EPD 查询真实排放因子。物料碳足迹、BOM 碳核算、行业对标定位、生产路线对比、EPD 同类审核。
+version: 1.11.0
+summary: 从 18 个 LCA 数据库和 24000+ 已发布 EPD 查询真实排放因子。物料碳足迹、BOM 碳核算、多指标 LCIA 与过程贡献、生产路线对比、EPD 检索。
 license: Apache-2.0
 homepage: https://github.com/HiQ-AI/agent-skills
 tags: [LCA, 碳足迹, 排放因子, EPD, CBAM, 数据分析, ecoinvent, HiQLCD, GWP, 生命周期评价, emission-factor, carbon-footprint]
@@ -21,124 +21,101 @@ tags: [LCA, 碳足迹, 排放因子, EPD, CBAM, 数据分析, ecoinvent, HiQLCD,
 可访问:
 
 - **18 个生命周期清单数据库**,其中 11 个免费。含中国本土数据(HiQLCD 覆盖中国全工业体系、铝产业链 HiQLCD-AL、汽车行业 CALCD)与国际主流库(Ecoinvent、BAFU、ELCD、EF、worldsteel、USLCI、AusLCI、CarbonMinds、Agri-footprint 等)。
-- **24000+ 已发布 EPD**(EPDItaly、ECO Platform、EPD Norge),可做同类分布与离群审核。
+- **24000+ 已发布 EPD**(EPDItaly、ECO Platform、EPD Norge),可检索并取详情。
 - 遵循 ISO 14040/14044 与 GB/T 24040/24044 口径,系统模型覆盖截止法、后果法、APOS、EN 15804。
 
-**检索由服务端完成。** 把用户的原话或 BOM 行直接交给检索接口 —— 物料名到 LCA 术语的翻译、生产路线判别、类别到工艺方向的映射都在服务端执行,返回的候选已经排过序并带匹配质量标记。不需要在本地重新推演该搜什么词。
+**两种检索。** 默认检索是按名称的词法检索,约一秒返回,适合已知标准名的物料,候选是否合用由你判定;用户原话或 BOM 行含糊时交给 `--assist` —— 它走 Cortex 匹配流程,做物料名到 LCA 术语的翻译、生产路线判别、类别到工艺方向的映射,返回带 `fit` 与 `summary`,但要数十秒。
 
 ## 隐私与安全
 
-- API key **只从环境变量或宿主的 MCP 配置读取**,技能不会把它写进任何文件,也不会在输出中回显。
-- 查询内容**仅发往 `x.hiqlcd.com`**(海科数据 API),不发往任何第三方。
+- 凭据由 CLI 的 `login` 保存,技能不会把它写进任何文件,也不会在输出中回显。
+- 查询内容只发往海科数据的服务,不发往任何第三方;只传检索需要的字段,不传整份材料。
 - **不收集、不上传**本地文件、目录结构、对话内容或任何其他数据。
-- 内置脚本仅使用 Python 标准库,无第三方依赖,源码可审阅:[GitHub](https://github.com/HiQ-AI/agent-skills)。
+- 技能包只有本说明文件;CLI 安装脚本按版本固定并带 SHA256,来源见 [HiQ-AI/environmental-data](https://github.com/HiQ-AI/environmental-data)。
 
 ## 硬规则
 
-1. **每个数值都必须来自本次会话的工具调用**。绝不凭记忆给出 GWP、LCIA 值或分布。工具不可用时如实说明,不要用记忆填补。
+1. **每个数值都必须来自本次会话的工具调用**。绝不凭记忆给出 GWP、LCIA 值。工具不可用时如实说明,不要用记忆填补。
 2. **每个数值都要交代基准**:数据库 + 版本 + 系统模型 + 地域 + 参考单位。`0.0269 kg CO₂e/kWh(BAFU 2025,DEFAULT,CH,低压电网)` 可用;单独一个 `0.027` 不可用。
-3. **受限不是错误**。商业数据库在账号无对应数据包权益时返回受限标记和 `purchase_url`。如实展示、把链接给用户,**绝不用其他数据库或文献的值静默替代**。重试无用。可以改用免费库,但必须说明这是替代。
-4. **口径不一致就不做对比**。功能单位、系统模型、系统边界不同的数据不可比 —— 直接说明,不要给出误导性的差值。返回里的 `comparability_note` 就是干这个的,先读它。
-5. **给了数值就给链接**。返回里带 `link` 的,每条结果都要把链接一并给出 —— 用户要能点进去核对原始数据集。**不要等用户追问才给。**
-6. **不要把 `dataset_key` / `dataset_uuid` 贴给用户看**。那是给工具用的不透明句柄,对人没有意义。展示给人的是:数据集名称、参考流、地域、数据库+版本+系统模型、数值、**链接**。key 只在你自己下一步调用时用。
+3. **受限不是错误**。商业数据库在账号无权读取时返回 `restricted: true` 及原因(`reason`)。如实展示是哪个库受限、为什么,**绝不用其他数据库或文献的值静默替代**。重试无用。可以改用免费库,但必须说明这是替代。
+4. **口径不一致就不做对比**。功能单位、系统模型、系统边界不同的数据不可比 —— 直接说明,不要给出误导性的差值。先核对参考单位、系统模型与 LCIA 方法。
+5. **给了数值就给链接**。返回里带 `webUrl`(`--assist` 检索里是 `link`)的,每条结果都要把链接一并给出 —— 用户要能点进去核对原始数据集。**不要等用户追问才给。**
+6. **不要把 `datasetRef` / `epd_key` / `activityUuid` 贴给用户看**。那是给工具用的不透明句柄,对人没有意义。展示给人的是:数据集名称、参考流、地域、数据库+版本+系统模型、数值、**链接**。key 只在你自己下一步调用时用。
 
 ## 接入
 
-**没有凭据时,第一句话就给扫码登录 —— 不要让用户去控制台建 API key。**
+数据经 **Environmental Data CLI** 读取,两个单文件程序,不依赖 node / python:
 
-扫码是「跑一条命令 + 浏览器点一下」,无需注册;建 API key 要登录控制台、找入口、复制粘贴、设环境变量,门槛高出一个量级。把后者摆在第一步会直接劝退用户。
+- `environmental-data` —— 背景数据库(生命周期清单数据集),用 `--sources` 选库;
+- `epd-data` —— 已发布 EPD。
 
-```bash
-# 没装过 hiq-cortex 就先装 —— 单文件程序,不依赖 node / python
-curl -fsSL https://download.hiq.earth/cli/hiq-cortex/install.sh | sh
-
-hiq-cortex login    # ← 缺凭据时默认走这条
-```
-
-Windows 的安装命令是 PowerShell 的 `irm https://download.hiq.earth/cli/hiq-cortex/install.ps1 | iex`。
-宿主已经有 Node 时,`npx @hiq-ai/hiq-cortex-cli <命令>` 与 `hiq-cortex <命令>` 完全等价,省掉下载。
-
-命令会打印一个授权链接。**把链接原样给用户,让他点「授权访问」**,然后继续原来的任务。凭据存在 `~/.config/hiq-cortex/credentials.json`(权限 600),之后所有命令直接可用;可见数据范围与该账号一致,**包含他已开通的商业数据库**。`logout` 删除本机凭据。
-
-只在这三种情况下才提 API key:用户自己说要用 key、运行在 CI / 服务端无浏览器环境、或扫码登录失败。
+**没装就先装。** 安装脚本按版本固定,带 SHA256:下载到新建的空目录、校验、读过脚本再执行,不要 `curl … | sh`。
 
 ```bash
-export HIQ_API_KEY=sk_xxx          # 服务端 / CI 用;同时存在时优先于扫码凭据
+d=$(mktemp -d)
+curl -fsSL -o "$d/install.sh" https://download.hiq.earth/cli/environmental-data/releases/v0.9.0/environmental-data/install.sh
+shasum -a 256 "$d/install.sh"   # 必须是 f13f1d47dd9e5a638a346d70d78bc4b5ba4053dd84192e4083b1153ae244924e
+sh "$d/install.sh"
 ```
 
-流程本身是三个普通 HTTP 请求(标准 device flow,RFC 8628),任何能执行 shell 的 agent 都可以自己跑:
+`epd-data` 把路径里的 `environmental-data/install.sh` 换成 `epd-data/install.sh`,SHA256 必须是
+`5e97bdaee937b76545b0c031a95b425282375ac594d09f76260f6f9197000b3c`。Windows 用同目录的 `install.ps1`
+(`environmental-data` 为 `e0666f09ab802bbe1d9b871a9100e4d2a5a79512b91518e416cd803128a93f8d`,`epd-data` 为
+`5d220436ec88aadd31a28892d53af9f0a3072cc76474367e600d7d92e94c9d3b`),`Get-FileHash -Algorithm SHA256` 校验后
+`powershell.exe -NoProfile -File <脚本绝对路径>`。各平台归档与校验值以
+[installation.json](https://github.com/HiQ-AI/environmental-data/blob/main/plugins/environmental-data/skills/environmental-data-query/references/installation.json)
+为准。
+
+**没有凭据时,第一步就是 `login` —— 不要让用户去控制台建 API key。**
 
 ```bash
-curl -sX POST https://x.hiqlcd.com/api/cortex/oauth/device_authorization \
-  -H 'Content-Type: application/json' \
-  -d '{"agent_id":"my-agent","agent_name":"我的助手","scope":"lca_data"}'
-# 把返回的 verification_uri_complete 给用户 → 他点授权
-curl -sX POST https://x.hiqlcd.com/api/cortex/oauth/token \
-  -H 'Content-Type: application/json' -d '{"device_code":"..."}'   # 428 = 还没授权,继续轮询
+environmental-data doctor          # exit 0 = 本机有凭据;exit 2 = 没有(不代表服务端权限)
+environmental-data login --json    # ← 缺凭据或服务端拒绝凭据时走这条
 ```
 
-宿主支持 MCP 时优先用 MCP。若当前会话已有 `lookup_datasets`、`aggregate_datasets`、`epd_search` 这些工具就直接用;没有则把下面这段配进宿主的 MCP 配置文件(WorkBuddy `~/.workbuddy/mcp.json`、Claude Code `~/.claude.json`、Cursor `~/.cursor/mcp.json`),配置后通常需重启宿主:
+`login` 是设备授权:授权链接与用户码打在 stderr,进程会一直等到用户授权或过期。**把返回的真实链接做成可点击的 Markdown 链接给用户,由他本人点授权**,不要替他授权、不要自己拼链接;进程成功退出后直接继续原来的任务,别停在「登录成功」。`epd-data` 有自己的 `doctor` / `login`;EPD 检索公开可用,`lookup` 需要登录。
 
-```json
-{
-  "mcpServers": {
-    "cortex": {
-      "type": "http",
-      "url": "https://x.hiqlcd.com/api/cortex/mcp",
-      "headers": { "X-API-Key": "sk_xxx" }
-    }
-  }
-}
-```
+`lookup`(含 GWP100)可以用 API key(`QUERYING_LCA_DATASETS_API_KEY`),数值按该 key 自己的权益与调用额度返回;**`lci`、`lcia`、`methods` 不接受 API key,只认 `login` 的凭据**。注册用户都能读免费库的数值;商业库数值还要账号已由海科开通 Environmental Data CLI 的商业数据访问,且只限账号已有的数据包权益,否则返回 `restricted`。
 
-扫码登录拿到的凭据也可用,把那一行换成 `"Authorization": "Bearer <凭据>"`,二选一。
-
-**绝不把凭据硬编码进为用户生成的文件。**
+凭据由 CLI 自己保存 —— **绝不硬编码进为用户生成的文件,不在输出里回显,不从别的客户端借 token**。
 
 ## 工具
 
-| 需求 | MCP 工具 | CLI 命令 |
-|---|---|---|
-| 材料名 / BOM 行 → 数据集 key | *(无,见下)* | `hiq-cortex search "<原话>" [--sources X]` |
-| key → GWP、基准、链接 | `lookup_datasets` | `hiq-cortex lookup-datasets --dataset-keys <key[,key…]>` |
-| 队列 → GWP 分布、百分位定位 | `aggregate_datasets` | `hiq-cortex aggregate-datasets --where '{"sources":["X"]}' [--target-value N]` |
-| 队列 → 非 GWP 的 LCIA 指标(AP/EP/ODP/WDP/ADP) | `aggregate_indicators` | `hiq-cortex aggregate-indicators --dataset-keys <keys> --indicator AP --source X` |
-| 单个数据集 → 工序级热点 | `process_hotspot` | `hiq-cortex process-hotspot --dataset-key <key>` |
-| 已发布 EPD 检索 | `epd_search` | `hiq-cortex epd-search --query "<关键词>" [--declared-unit m3]` |
-| EPD 同类分布、离群判定 | `epd_peer_benchmark` | `hiq-cortex epd-peer-benchmark --product-category "<品类>" --declared-unit m3` |
+| 需求 | 命令 |
+|---|---|
+| 材料名 / BOM 行 → 候选数据集 | `environmental-data search '<检索词>' [--sources '<库代码>'] --json` |
+| 原话含糊,要服务端理解需求再匹配 | 同上加 `--assist`(数十秒) |
+| key → 详情、GWP100、链接 | `environmental-data lookup '<key1,key2,…>' --json`(一次 1–200 个) |
+| 非 GWP 的 LCIA 指标(AP/EP/ODP/WDP/ADP) | `environmental-data methods <库代码>` 查 methodId → `environmental-data lcia '<key[,key…]>' --method '<methodId>' --json` |
+| 单个数据集 → 过程贡献 / 热点(分阶段) | `environmental-data lcia '<key>' --contributions --method '<methodId>' --json` |
+| 累计清单(基本流) | `environmental-data lci '<key>' [--type output --category air] --json` |
+| 已发布 EPD 检索 | `epd-data search '<品类描述>' --json` → `epd-data lookup '<epd_key>' --json` |
 
-命令加 `--json` 输出原始 payload。
+命令都加 `--json`。没有队列分布、百分位定位或 EPD 同类分布的命令 —— 需要对标时见下面「场景路由」。`--contributions` 按阶段分桶(电 / 热、燃料、材料、运输、直接排放等),不给单元过程明细。
 
-检索没有对应的 MCP 工具 —— 它是一个 REST 接口,脚本已封装。直接调用:
+默认检索直连数据服务,约一秒返回,是按名称的词法检索:检索词里写产品 / 工艺名(中英文名都写更好),库、系统模型、地域用 `--sources` / `--model` / `--location` 限定。它不判断需求 —— 每条候选是否合用,由你对照需求判定。`--assist` 把原话交给 Cortex 匹配流程,解释条件并校验候选,返回带 `fit` 与 `summary`,但要数十秒,且不能与 `--location` / `--limit` / `--cursor` / `--collapse` 同用。
 
-```bash
-curl -sN -X POST https://x.hiqlcd.com/api/cortex/search \
-  -H "X-API-Key: sk_xxx" -H "Content-Type: application/x-www-form-urlencoded" \
-  -d "query=304 不锈钢&sources=BAFU,Ecoinvent"
-```
+`--sources` 用小写库代码,多个用 `|` 连在**一个**参数里(如 `'hiqlcd|hiqlcd-al'`);指定版本写 `库代码:版本`,版本号用 `environmental-data sources --json` 返回的完整写法。methodId 不要猜:先 `methods <库代码>`,或看 `lcia` 返回的 `methodIdsWithData`。
 
-返回是 SSE —— 解析 `WorkflowCompleted` 事件,再对其 `content` 字段做 JSON 解码。**耗时 20–40 秒**(服务端要检索并逐条校验),属正常,不是卡死,不要并发重试。
-
-`dataset_key` 是不透明句柄,原样传递,绝不自行拼接或修改。
+`datasetRef` 是不透明句柄,原样传递,绝不自行拼接或修改。默认输出是预览(每个数组最多 10 行,省略描述类字段,`coverage.omitted` 标出省略了什么),需要全部内容加 `--full`。
 
 ## 怎么读返回
 
 | 字段 | 含义 | 该怎么做 |
 |---|---|---|
-| `status: found` / `partial` / `not_found` | `partial` = 有结果但部分受限 | 照常展示,受限项按硬规则 3 处理 |
-| `summary` | 服务端对本次检索的说明 | 转述给用户,不要自己另编一套解释 |
-| `fit: high / medium / low` | 服务端给出的匹配质量 | `low` 的候选引用前先跟用户确认 |
-| `name` / `ref_product` / `location` | 数据集名称、参考流、地域 | 引用前先读 —— 「冷轧退火卷」和「中厚板」是不同产品 |
-| `restricted: true` | 无该库数据包权益 | 给 `purchase_url`,可提供免费库替代并说明 |
-| `link` | 该数据集在平台上的详情页 | **每条结果都带上**,别等用户要。检索侧**保证有** —— 服务端把没有 link 的候选直接丢弃了,拿到的每条都带 |
-| `src` / `ver` / `model` / `loc` / `unit` | 数据库 / 版本 / 系统模型 / 地域 / 单位 | 这五个就是硬规则 2 要的「基准」,直接取,别自己拼 |
-| `material` | 这条候选对应用户问的哪个物料 | 多物料批量检索时用它归组 |
-| `dqi` | 数据质量指标 | 有值就带上,用户判断可用性要看 |
-| `dataset_key` | 给工具用的不透明句柄 | 自己下一步调用时用,**不展示给用户** |
-| `dataset_uuid` | 查询侧的数据集标识 | 同样不展示;**它不是编辑器里的「背景数据唯一 ID」**,别拿去填 `hiq-editor` 的 `background`(那个要用 `search-backgrounds` 现查) |
-| `missing_keys` 非空 | key 来自旧版本目录 | 重新检索,不要手改 key |
-| `comparability_note` | 队列可比性说明 | 做对比前必读 |
-| `entitlement` | 聚合为空是因为权益,不是谓词 | 不要换谓词重试 |
+| `datasetRef` | 数据集句柄 | `lookup` / `lci` / `lcia` 时原样传,**不展示给用户** |
+| `activityUuid` | 活动标识 | 同样不展示;**它不是编辑器里的「背景数据唯一 ID」**,别拿去填 `hiq-editor` 的 `background`(那个要用 `search-backgrounds` 现查) |
+| `name` / `referenceProduct` / `location` | 名称、参考流(名称 / 单位 / 数量)、地域 | 引用前先读 —— 「冷轧退火卷」和「中厚板」是不同产品 |
+| `source.code` / `source.version` / `systemModel.code` | 库 / 版本 / 系统模型 | 这就是要交代的基准,直接取,别自己拼 |
+| `searchEvidence` | 默认检索的词法得分 | 不是匹配质量,候选是否合用自己判定 |
+| `fit` / `summary`(仅 `--assist`) | 服务端的匹配证据与说明 | `low` 的候选引用前先跟用户确认;`summary` 转述,不要另编一套 |
+| `headlineGwp` | `lookup` 给的 GWP100:`value` / `unit` / `method` | 数值连同方法一起引用 |
+| `restricted: true` + `reason` | 有数据,但本账号读不到 | 说明是哪个库受限及原因;可提供免费库替代并说明 |
+| `webUrl` | 数据集详情页 | **每条结果都带上**,别等用户要;没有就如实说没有,不要自己拼 |
+| `data.coverage.missingKeys` | 请求的 key 没有返回 | 重新检索,不要手改 key |
+| `source.commercial` | 是否商业库 | 判断受限原因、找免费替代时用 |
+| `methodIdsWithData` | 该数据集有 LCIA 结果的方法 | 选 `--method` 前先看 |
+| `coverage.omitted` / `coverage.partial` | 默认预览省略了什么 | 需要描述、文档或其余行时加 `--full` |
 
 ## 检索范围
 
@@ -146,9 +123,9 @@ curl -sN -X POST https://x.hiqlcd.com/api/cortex/search \
 
 但有两种情况要主动收窄,并说明理由:
 
-- **场景已经明确**。用户说了中国产地就 `--sources HiQLCD,CALCD`,说了欧洲语境就
-  `BAFU,ELCD,EF`,做建材 EPD 就带上 EN 15804 口径的库。检索是 20–40 秒的操作,
-  盲扫 18 个库既慢又把不相关的候选混进来。
+- **场景已经明确**。用户说了中国产地就 `--sources 'hiqlcd|calcd'`,说了欧洲语境就
+  `'bafu|elcd|ef'`,做建材就加 `--model en15804`。盲扫 18 个库会把不相关的候选混进来,
+  用 `--assist` 时还更慢。
 - **上一轮大量 `restricted`**。说明该账号没有那几个商业库的权益 —— 告诉用户他当前
   能用哪些库,后续检索直接限定在这些库里,别每轮都撞同一堵墙。
 
@@ -160,11 +137,11 @@ curl -sN -X POST https://x.hiqlcd.com/api/cortex/search \
 
 | 信号 | 做法 |
 |---|---|
-| 用户给出**自己的**数值,问处在什么位置(「我这 2.5 算高还是低」) | `aggregate` 加队列谓词 + `--target` → 百分位定位 |
+| 用户给出**自己的**数值,问处在什么位置(「我这 2.5 算高还是低」) | `search` 找口径可比的候选 → `lookup` 取值,与用户数值并列;写明样本是哪几条。**没有分布或百分位接口**,不要把几条候选说成行业分布 |
 | 有材料或 BOM 要匹配数据集 | `search` → 批量 `lookup` |
-| 要比两条生产路线(转炉钢与电炉钢、原生铝与再生铝) | 按路线分别 `search` 再分别聚合,在同一功能单位下对比 |
-| 「这个 EPD 数值合理吗」 | `epd-benchmark` 并指定 `--unit`,跨单位比较没有意义 |
-| 多指标评价(酸化、富营养化等) | `indicators`,一次一个指标;`--source` 必须与队列所在库一致 |
+| 要比两条生产路线(转炉钢与电炉钢、原生铝与再生铝) | 按路线分别 `search` + `lookup`,在同一功能单位、同一方法下对比;差异用 `lcia --contributions` 解释 |
+| 「这个 EPD 数值合理吗」 | `epd-data search` 找声明单位与模块一致的 EPD,`lookup` 后并列;没有同类分布接口,样本只作参照,跨单位比较没有意义 |
+| 多指标评价(酸化、富营养化等) | `methods <库代码>` 查 methodId → `lcia`;methodId 跨库不通用 |
 
 ## 什么时候该问用户
 
@@ -178,17 +155,17 @@ curl -sN -X POST https://x.hiqlcd.com/api/cortex/search \
 
 | 层级 | 内容 | 要求 |
 |---|---|---|
-| 目录层 | 全部 18 个库的清单、版本、系统模型、LCIA 覆盖;数据集名称、单位、地域 | 无需权益 |
-| 免费库数值 | BAFU、USLCI、ELCD、EF、AusLCI、NEEDS、ozLCI、worldsteel、USDA、bioenergiedat、recycledplastics 的 GWP 与聚合统计 | 任一有效 key |
-| 商业库数值 | ecoinvent、HiQLCD、HiQLCD-AL、CALCD(汽车)、CarbonMinds、Agri-footprint | 需对应数据包权益 |
+| 目录层 | 全部 18 个库的清单、版本、系统模型、LCIA 覆盖;数据集名称、单位、地域 | 登录即可,无需权益 |
+| 免费库数值 | BAFU、USLCI、ELCD、EF、AusLCI、NEEDS、ozLCI、worldsteel、USDA、bioenergiedat、recycledplastics 的 GWP、LCIA 与清单 | 任一登录账号(`lookup` 也可用 API key;`lci` / `lcia` 需登录) |
+| 商业库数值 | ecoinvent、HiQLCD、HiQLCD-AL、CALCD(汽车)、CarbonMinds、Agri-footprint | 账号已开通 CLI 商业数据访问 + 对应数据包权益 |
 
 数据包权益与订阅套餐是**两套独立体系**,升级套餐不会解锁数据库。
 
-**多数用户只有免费库权益 —— 这是常态,不是异常。** 遇到 `restricted` 不要只丢一个
-购买链接了事,先看免费库能不能回答同一个问题,能就给出来并说明口径差异;确实只有商业库
-才有的(中国本土数据、化学品工艺级、汽车行业口径),再说明是哪个库受限、给 `purchase_url`。
+**多数用户只有免费库权益 —— 这是常态,不是异常。** 遇到 `restricted` 不要只说一句
+受限了事,先看免费库能不能回答同一个问题,能就给出来并说明口径差异;确实只有商业库
+才有的(中国本土数据、化学品工艺级、汽车行业口径),再说明是哪个库受限、原因是什么;数据包开通见 [hiqlcd.com](https://carbonx.hiqlcd.com/price)。
 
-### 免费库(任一有效凭据即可取数值)
+### 免费库(任一登录账号即可取数值)
 
 | 库 | 覆盖 | 什么时候用 |
 |---|---|---|
@@ -244,11 +221,15 @@ curl -sN -X POST https://x.hiqlcd.com/api/cortex/search \
 
 | 现象 | 原因 | 处理 |
 |---|---|---|
-| `401 {"code":"INT-007"}` | 用了 Bearer,或 key 无效 | 改用 `X-API-Key` |
-| CDN 返回 `error 1010` | HTTP 客户端默认 User-Agent 被拦截 | 内置脚本已设;直接调用时自行带一个常规 `User-Agent` |
-| 检索耗时 30 秒 | 正常,服务端要检索并校验 | 等待,不要并发重试 |
-| 聚合 `status: "empty"` **不带** `entitlement` | 谓词确实没命中 | 放宽谓词 |
-| `indicators` 返回空 | `source` 必须等于队列实际所在库(`method_id` 跨库不通用) | 传入正确的 `--source` |
-| 队列数值跨越多个数量级 | 功能单位混杂,不是真实离散 | 收窄谓词;先读 `comparability_note` |
-| 轮询授权返回 `428` | 用户还没点授权 | 正常状态,按返回的 `interval` 继续轮询 |
-| 授权后仍查不到商业库 | 该账号本就没有那个数据包权益 | 扫码登录只换凭据,不改变权益;按受限提示给开通链接 |
+| `command not found` | 没装 CLI | 按「接入」安装固定版本 |
+| 认证错误 / `doctor` exit 2 | 本机没有凭据,或凭据被拒 | `environmental-data login --json`,用户授权后继续原任务 |
+| 设了 `QUERYING_LCA_DATASETS_API_KEY` 时 `lci` / `lcia` / `methods` 被拒 | 这三个命令不接受 API key(`lookup` 可以) | 用 `login` 的凭据跑这三个命令 |
+| `restricted: true` | 本账号读不到该库数值(看 `reason`:商业库要账号已开通 CLI 商业数据访问且有该库数据包) | 如实说明;先看免费库能否回答同一问题 |
+| 授权后仍读不到商业库 | 账号未开通 CLI 商业数据访问,或没有那个数据包权益 | 登录只换凭据,不改变权益;如实说明受限原因,不要反复登录或换账号 |
+| `lcia` 没有数据 | methodId 不对,或该库没有 LCIA 层 | 先 `methods <库代码>`,再用返回的 methodId;看 `methodIdsWithData` |
+| `missingKeys` 非空 | key 不在当前目录(多为旧版本) | 重新检索,不要手改 key |
+| 指定版本被拒 | 版本号要写全(`3.13.0`,不是 `3.13`) | 用 `sources --json` 返回的版本号 |
+| 加了 `--location` 就没结果 | 不认识的地域代码不匹配任何数据,也不会放宽 | 用返回里 `location.id` 的写法(`CN`、`CN-ECGC`、`RER`、`GLO` 等) |
+| 几个候选数值跨越多个数量级 | 功能单位混杂,不是真实离散 | 逐条核对参考单位与边界,换算有依据再比 |
+| 服务不可用 | 服务端故障 | 不代表权益被拒;稍后重试,不要换账号或改用网页上的数 |
+| `429` | 按地址限流 | CLI 会自动退避;不要并发或无界循环 |

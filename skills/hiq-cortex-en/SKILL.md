@@ -1,10 +1,10 @@
 ---
 name: hiq-cortex
-description: 'Look up real LCA emission factors and carbon footprint data from 18 life-cycle inventory databases (Ecoinvent, BAFU, USLCI, ELCD, EF, worldsteel, AusLCI, HiQLCD …) and 24,000+ published EPDs. Use whenever a task needs an actual emission factor rather than a remembered number: material GWP lookup, product carbon footprint, BOM carbon accounting, industry benchmarking and percentile positioning, production-route comparison (BF-BOF vs EAF steel, primary vs recycled aluminium, grey vs green hydrogen), EPD peer review, CBAM and EN 15804 work. Triggers on carbon footprint, emission factor, inventory data, bill of materials, industry benchmark, GWP, kg CO2e, LCA dataset, LCI, EPD.'
+description: 'Look up real LCA emission factors and carbon footprint data from 18 life-cycle inventory databases (Ecoinvent, BAFU, USLCI, ELCD, EF, worldsteel, AusLCI, HiQLCD …) and 24,000+ published EPDs. Use whenever a task needs an actual emission factor rather than a remembered number: material GWP lookup, product carbon footprint, BOM carbon accounting, side-by-side dataset comparison, multi-indicator LCIA and process contributions, production-route comparison (BF-BOF vs EAF steel, primary vs recycled aluminium, grey vs green hydrogen), published EPD lookup, CBAM and EN 15804 work. Triggers on carbon footprint, emission factor, inventory data, bill of materials, GWP, kg CO2e, LCA dataset, LCI, EPD.'
 slug: hiq-cortex
 displayName: HiQ Cortex — LCA Data
-version: 1.10.1
-summary: Look up real emission factors from 18 LCA databases and 24,000+ published EPDs. Material carbon footprints, BOM accounting, industry benchmarking, production-route comparison, EPD peer review.
+version: 1.11.0
+summary: Look up real emission factors from 18 LCA databases and 24,000+ published EPDs. Material carbon footprints, BOM accounting, multi-indicator LCIA and process contributions, production-route comparison, EPD lookup.
 license: Apache-2.0
 homepage: https://github.com/HiQ-AI/agent-skills
 tags: [LCA, carbon-footprint, emission-factor, EPD, CBAM, ecoinvent, HiQLCD, GWP, LCI, life-cycle-assessment]
@@ -21,119 +21,96 @@ This skill connects to **HiQ Cortex** — the LCA data service of [HiQ (海科�
 Available:
 
 - **18 life-cycle inventory databases**, 11 of them free. Includes China-specific data (HiQLCD covering China's full industrial system, HiQLCD-AL for the aluminium value chain, CALCD for the automotive sector) alongside international sources (Ecoinvent, BAFU, ELCD, EF, worldsteel, USLCI, AusLCI, CarbonMinds, Agri-footprint …).
-- **24,000+ published EPDs** (EPDItaly, ECO Platform, EPD Norge) for peer distributions and outlier review.
+- **24,000+ published EPDs** (EPDItaly, ECO Platform, EPD Norge), searchable with full details.
 - ISO 14040/14044 and GB/T 24040/24044 conventions; system models covering cut-off, consequential, APOS, and EN 15804.
 
-**Search runs server-side.** Pass the user's own wording or raw BOM lines straight to the search endpoint — translating material names into LCA terminology, identifying production routes, and mapping categories to process direction all happen on the server. Returned candidates are already ranked and carry a match-quality marker. Do not re-derive search terms locally.
+**Two search modes.** Default search is lexical retrieval on names, returns in about a second, and suits materials with a known standard name — you judge each candidate. When the user's wording or a BOM line is vague, use `--assist`: the Cortex matching workflow translates material names into LCA terminology, identifies production routes and maps categories to process direction, and returns `fit` and `summary`, at the cost of tens of seconds.
 
 ## Privacy and security
 
-- The API key is **read only from the environment or the host's MCP config**. The skill never writes it to a file and never echoes it in output.
-- Queries go **only to `x.hiqlcd.com`** (HiQ's API), never to any third party.
+- Credentials are stored by the CLI's `login`. The skill never writes them to a file and never echoes them in output.
+- Queries go only to HiQ's data service, never to any third party; send only the fields a search needs, not whole documents.
 - **Nothing is collected or uploaded** — no local files, directory structure, or conversation content.
-- The bundled script uses only the Python standard library, no third-party dependencies, and the source is auditable on [GitHub](https://github.com/HiQ-AI/agent-skills).
+- The skill package is this instruction file only; the CLI installers are version-pinned with SHA256 checksums, published at [HiQ-AI/environmental-data](https://github.com/HiQ-AI/environmental-data).
 
 ## Hard rules
 
-1. **Every number must come from a tool call in this session.** Never state a GWP, LCIA value, or distribution from memory. If the tools are unavailable, say so — do not fill the gap.
+1. **Every number must come from a tool call in this session.** Never state a GWP or LCIA value from memory. If the tools are unavailable, say so — do not fill the gap.
 2. **Every number needs its basis**: database + version + system model + geography + reference unit. `0.0269 kg CO₂e/kWh (BAFU 2025, DEFAULT, CH, low-voltage grid)` is usable; a bare `0.027` is not.
-3. **Restricted is not an error.** Commercial databases return a restriction marker and a `purchase_url` when the account lacks the data package. Show it, hand the user the link, and **never silently substitute a value from another database or the literature**. Retrying does not help. A free database may be used instead, but say that it is a substitution.
-4. **Do not compare across conventions.** Data with different functional units, system models, or system boundaries is not comparable — say so rather than presenting a misleading delta. Read `comparability_note` first; that is what it is for.
+3. **Restricted is not an error.** Commercial databases return `restricted: true` with a `reason` when the account cannot read them. Name the database and the reason, and **never silently substitute a value from another database or the literature**. Retrying does not help. A free database may be used instead, but say that it is a substitution.
+4. **Do not compare across conventions.** Data with different functional units, system models, or system boundaries is not comparable — say so rather than presenting a misleading delta. Check reference unit, system model and LCIA method first.
 
 ## Access
 
-**With no credentials available, lead with browser sign-in — do not send the user to the console to create an API key.**
+Data is read through the **Environmental Data CLI** — two single-file programs, no Node and no Python needed:
 
-Sign-in is one command plus one click, with no registration. Creating an API key means logging into a console, finding the right page, copying a secret, and setting an environment variable — an order of magnitude more friction. Putting that first is how you lose the user.
+- `environmental-data` — background databases (life-cycle inventory datasets); pick databases with `--sources`;
+- `epd-data` — published EPDs.
 
-```bash
-# Install hiq-cortex first if it is not on the machine — a single file, no
-# Node and no Python needed
-curl -fsSL https://download.hiq.earth/cli/hiq-cortex/install.sh | sh
-
-hiq-cortex login   # ← the default when no credential is present
-```
-
-On Windows the installer is PowerShell: `irm https://download.hiq.earth/cli/hiq-cortex/install.ps1 | iex`.
-
-Where the host already has Node, `npx @hiq-ai/hiq-cortex-cli <command>` is
-exactly equivalent to `hiq-cortex <command>` and skips the download.
-
-The command prints an authorization link. **Hand the link to the user verbatim, have them click "authorize"**, then carry on with the original task. Credentials land in `~/.config/hiq-cortex/credentials.json` (mode 600) and every command works from then on; the visible data scope matches that account, **including any commercial databases it has access to**. `logout` removes them.
-
-Only reach for an API key in three cases: the user asks for one, the environment is CI / server-side with no browser, or sign-in failed.
+**Install if missing.** Installers are version-pinned with a SHA256: download into a new empty directory, verify, read the script, then run it. Never `curl … | sh`.
 
 ```bash
-export HIQ_API_KEY=sk_xxx          # server-side / CI; takes precedence when both exist
+d=$(mktemp -d)
+curl -fsSL -o "$d/install.sh" https://download.hiq.earth/cli/environmental-data/releases/v0.9.0/environmental-data/install.sh
+shasum -a 256 "$d/install.sh"   # must be f13f1d47dd9e5a638a346d70d78bc4b5ba4053dd84192e4083b1153ae244924e
+sh "$d/install.sh"
 ```
 
-The flow is three plain HTTP requests (standard device flow, RFC 8628) — any agent that can run a shell can do it without the script:
+For `epd-data`, replace `environmental-data/install.sh` in the path with `epd-data/install.sh`; its SHA256 must be
+`5e97bdaee937b76545b0c031a95b425282375ac594d09f76260f6f9197000b3c`. On Windows use `install.ps1` from the same directory
+(`environmental-data`: `e0666f09ab802bbe1d9b871a9100e4d2a5a79512b91518e416cd803128a93f8d`; `epd-data`:
+`5d220436ec88aadd31a28892d53af9f0a3072cc76474367e600d7d92e94c9d3b`), verify with `Get-FileHash -Algorithm SHA256`, then run
+`powershell.exe -NoProfile -File <absolute script path>`. Per-platform archives and checksums are authoritative in
+[installation.json](https://github.com/HiQ-AI/environmental-data/blob/main/plugins/environmental-data/skills/environmental-data-query/references/installation.json).
+
+**With no credentials available, lead with `login` — do not send the user to a console to create an API key.**
 
 ```bash
-curl -sX POST https://x.hiqlcd.com/api/cortex/oauth/device_authorization \
-  -H 'Content-Type: application/json' \
-  -d '{"agent_id":"my-agent","agent_name":"My Assistant","scope":"lca_data"}'
-# hand the returned verification_uri_complete to the user → they approve
-curl -sX POST https://x.hiqlcd.com/api/cortex/oauth/token \
-  -H 'Content-Type: application/json' -d '{"device_code":"..."}'   # 428 = not yet approved, keep polling
+environmental-data doctor          # exit 0 = a local credential exists; exit 2 = none (says nothing about server rights)
+environmental-data login --json    # ← the default when credentials are missing or rejected
 ```
 
-Prefer MCP when the host supports it. If `lookup_datasets`, `aggregate_datasets`, `epd_search` are already available in this session, use them. Otherwise add this to the host's MCP config (WorkBuddy `~/.workbuddy/mcp.json`, Claude Code `~/.claude.json`, Cursor `~/.cursor/mcp.json`) and restart the host:
+`login` is a device flow: the authorization URL and user code go to stderr, and the process waits until the user approves or the code expires. **Give the user the actual returned URL as a clickable Markdown link and let them approve it themselves** — never approve on their behalf or construct a URL. When the process exits successfully, carry on with the original task; do not stop at "signed in". `epd-data` has its own `doctor` / `login`; EPD search is public, `lookup` needs sign-in.
 
-```json
-{
-  "mcpServers": {
-    "cortex": {
-      "type": "http",
-      "url": "https://x.hiqlcd.com/api/cortex/mcp",
-      "headers": { "X-API-Key": "sk_xxx" }
-    }
-  }
-}
-```
+`lookup` (including the GWP100) works with an API key (`QUERYING_LCA_DATASETS_API_KEY`), following that key's own entitlements and API quota; **`lci`, `lcia` and `methods` reject API keys and need the `login` credential**. Every registered user can read free-database values; commercial values additionally require that HiQ has enabled Environmental Data CLI commercial access for the account, and stay limited to the account's data packages — otherwise rows come back `restricted`.
 
-Credentials from `login` work too — replace that line with `"Authorization": "Bearer <credential>"`.
-
-**Never hard-code credentials into files generated for the user.**
+The CLI stores its own credential — **never hard-code credentials into files generated for the user, never echo them, never borrow a token from another client**.
 
 ## Tools
 
-| Need | MCP tool | CLI command |
-|---|---|---|
-| Material / BOM line → dataset key | *(none, see below)* | `hiq-cortex search "<user's wording>" [--sources X]` |
-| Key → GWP, basis, links | `lookup_datasets` | `hiq-cortex lookup-datasets --dataset-keys <key[,key…]>` |
-| Cohort → GWP distribution, percentile positioning | `aggregate_datasets` | `hiq-cortex aggregate-datasets --where '{"sources":["X"]}' [--target-value N]` |
-| Cohort → non-GWP LCIA indicators (AP/EP/ODP/WDP/ADP) | `aggregate_indicators` | `hiq-cortex aggregate-indicators --dataset-keys <keys> --indicator AP --source X` |
-| Single dataset → process-level hotspots | `process_hotspot` | `hiq-cortex process-hotspot --dataset-key <key>` |
-| Published EPD search | `epd_search` | `hiq-cortex epd-search --query "<query>" [--declared-unit m3]` |
-| EPD peer distribution, outlier check | `epd_peer_benchmark` | `hiq-cortex epd-peer-benchmark --product-category "<category>" --declared-unit m3` |
+| Need | Command |
+|---|---|
+| Material / BOM line → candidate datasets | `environmental-data search '<search terms>' [--sources '<codes>'] [--location CN] --json` |
+| Vague wording that needs requirement-level matching | Same with `--assist` (tens of seconds) |
+| Key → details, GWP100, link | `environmental-data lookup '<key1,key2,…>' --json` (1–200 keys) |
+| Non-GWP LCIA indicators (AP/EP/ODP/WDP/ADP) | `environmental-data methods <code>` for the methodId → `environmental-data lcia '<key[,key…]>' --method '<methodId>' --json` |
+| Single dataset → process contribution / hotspots (by stage) | `environmental-data lcia '<key>' --contributions --method '<methodId>' --json` |
+| Cumulative inventory (elementary flows) | `environmental-data lci '<key>' [--type output --category air] --json` |
+| Published EPD search | `epd-data search '<category description>' --json` → `epd-data lookup '<epd_key>' --json` |
 
-Add `--json` to any script command for the raw payload.
+There is no cohort-distribution, percentile or EPD peer-benchmark command — see "Scenario routing" for what to do instead. `--contributions` buckets by stage (electricity/heat, fuels, materials, transport, direct …); it gives no unit-process detail.
 
-Search has no MCP tool — it is a REST endpoint, wrapped by the script. Direct call:
+Default search reads the data service directly and returns in about a second. It is lexical retrieval on names: put the product/process name in the query (English and Chinese names both help) and restrict database, system model and geography with `--sources` / `--model` / `--location`. It does not interpret requirements — you judge each candidate. `--assist` sends the wording to the Cortex matching workflow, which interprets conditions and verifies candidates and returns `fit` and `summary`, but takes tens of seconds and cannot be combined with `--location` / `--limit` / `--cursor` / `--collapse`.
 
-```bash
-curl -sN -X POST https://x.hiqlcd.com/api/cortex/search \
-  -H "X-API-Key: sk_xxx" -H "Content-Type: application/x-www-form-urlencoded" \
-  -d "query=304 stainless steel&sources=BAFU,Ecoinvent"
-```
+`--sources` takes lower-case codes; join several with `|` inside **one** argument (`'hiqlcd|hiqlcd-al'`); pin a version as `code:version` using the exact string from `environmental-data sources --json`. Never guess a methodId: run `methods <code>` or read `methodIdsWithData` from `lcia`.
 
-The response is SSE — parse the `WorkflowCompleted` event, then JSON-decode its `content` field. **It takes 20–40 seconds** (the server searches and verifies each hit). That is normal, not a hang; do not retry in parallel.
-
-`dataset_key` is an opaque handle — pass it through unchanged, never construct or edit one.
+`datasetRef` is an opaque handle — pass it through unchanged, never construct or edit one. Default output is a preview (at most 10 rows per array, description fields omitted, listed under `coverage.omitted`); add `--full` for the whole response.
 
 ## Reading the response
 
 | Field | Meaning | What to do |
 |---|---|---|
-| `status: found` / `partial` / `not_found` | `partial` = results found, some restricted | Show them; handle restricted per hard rule 3 |
-| `summary` | The server's account of this search | Relay it; do not invent a competing explanation |
-| `fit: high / medium / low` | Server-assigned match quality | Confirm with the user before citing a `low` |
-| `name` / `ref_product` / `location` | Dataset name, reference flow, geography | Read before citing — "cold-rolled annealed coil" and "heavy plate" are different products |
-| `restricted: true` | No data package for that database | Give the `purchase_url`; a free-database alternative must be labelled as such |
-| `missing_keys` non-empty | Key came from an older catalogue version | Search again; do not hand-edit keys |
-| `comparability_note` | Cohort comparability caveats | Read before comparing |
-| `entitlement` | An empty aggregate is an entitlement issue, not a predicate issue | Do not retry with a different predicate |
+| `datasetRef` | Dataset handle | Pass to `lookup` / `lci` / `lcia` unchanged; **do not show it to the user** |
+| `name` / `referenceProduct` / `location` | Dataset name, reference flow (name / unit / amount), geography | Read before citing — "cold-rolled annealed coil" and "heavy plate" are different products |
+| `source.code` / `source.version` / `systemModel.code` | Database / version / system model | This is the basis hard rule 2 asks for; take it as returned |
+| `source.commercial` | Whether the database is commercial | Use when explaining a restriction or looking for a free alternative |
+| `searchEvidence` | Lexical score from default search | Not match quality; judge suitability yourself |
+| `fit` / `summary` (`--assist` only) | Server matching evidence and account | Confirm with the user before citing a `low`; relay `summary`, do not invent a competing explanation |
+| `headlineGwp` | GWP100 from `lookup`: `value` / `unit` / `method` | Cite the value with its method |
+| `restricted: true` + `reason` | Data exists but this account cannot read it | Handle per hard rule 3 |
+| `webUrl` | Dataset page | **Include it with every result**; if none is returned say so, never build one |
+| `data.coverage.missingKeys` | Requested keys not returned | Search again; do not hand-edit keys |
+| `methodIdsWithData` | Methods with LCIA results for this dataset | Check before choosing `--method` |
 
 ## Scenario routing
 
@@ -141,11 +118,11 @@ Top to bottom, first match wins.
 
 | Signal | What to do |
 |---|---|
-| User gives **their own** number and asks where it sits ("is my 2.5 high or low") | `aggregate` with a cohort predicate + `--target` → percentile positioning |
+| User gives **their own** number and asks where it sits ("is my 2.5 high or low") | `search` for comparable candidates → `lookup`, and set them beside the user's number, naming the sample. **There is no distribution or percentile API** — never present a few candidates as an industry distribution |
 | A material or BOM to match against datasets | `search` → batch `lookup` |
-| Comparing two production routes (BF-BOF vs EAF steel, primary vs recycled aluminium) | Search and aggregate each route separately, compare under one functional unit |
-| "Is this EPD value reasonable" | `epd-benchmark` with an explicit `--unit`; cross-unit comparison is meaningless |
-| Multi-indicator assessment (acidification, eutrophication …) | `indicators`, one indicator at a time; `--source` must match the cohort's database |
+| Comparing two production routes (BF-BOF vs EAF steel, primary vs recycled aluminium) | `search` + `lookup` each route separately, compare under one functional unit and one method; explain the gap with `lcia --contributions` |
+| "Is this EPD value reasonable" | `epd-data search` for EPDs with the same declared unit and modules, `lookup`, and compare side by side; there is no peer-distribution API, the sample is a reference only; cross-unit comparison is meaningless |
+| Multi-indicator assessment (acidification, eutrophication …) | `methods <code>` for the methodId → `lcia`; methodIds are not portable across databases |
 
 ## When to ask the user
 
@@ -159,11 +136,11 @@ Only ask when a single dataset must be finalised and the remaining ambiguity wou
 
 | Tier | Content | Requirement |
 |---|---|---|
-| Catalogue | All 18 databases: inventory, versions, system models, LCIA coverage; dataset names, units, geographies | None |
-| Free database values | GWP and aggregates for BAFU, USLCI, ELCD, EF, AusLCI, NEEDS, ozLCI, worldsteel, USDA, bioenergiedat, recycledplastics | Any valid credential |
-| Commercial database values | GWP and aggregates for Ecoinvent, HiQLCD, HiQLCD-AL, CALCD (automotive), CarbonMinds, Agri-footprint | Matching data package |
+| Catalogue | All 18 databases: inventory, versions, system models, LCIA coverage; dataset names, units, geographies | Sign-in, no data package |
+| Free database values | GWP, LCIA and inventory for BAFU, USLCI, ELCD, EF, AusLCI, NEEDS, ozLCI, worldsteel, USDA, bioenergiedat, recycledplastics | Any signed-in account (`lookup` also works with an API key; `lci` / `lcia` need sign-in) |
+| Commercial database values | GWP, LCIA and inventory for Ecoinvent, HiQLCD, HiQLCD-AL, CALCD (automotive), CarbonMinds, Agri-footprint | CLI commercial access enabled for the account + matching data package |
 
-Data packages and subscription plans are **two separate systems** — upgrading a plan does not unlock a database. When something is restricted, name the database, hand over the `purchase_url`, and offer a free-database path if one answers the same question, labelled as a substitution.
+Data packages and subscription plans are **two separate systems** — upgrading a plan does not unlock a database. When something is restricted, name the database and the reason, point to [data packages](https://carbonx.hiqlcd.com/price), and offer a free-database path if one answers the same question, labelled as a substitution.
 
 ## Voice and terminology
 
@@ -178,12 +155,15 @@ Write for LCA practitioners, like a knowledgeable peer.
 
 | Symptom | Cause | Fix |
 |---|---|---|
-| `401 {"code":"INT-007"}` | Used Bearer, or the key is invalid | Use `X-API-Key` |
-| CDN returns `error 1010` | Default HTTP client User-Agent is blocked | The bundled script sets one; add a normal `User-Agent` on direct calls |
-| Search takes 30 seconds | Normal — it searches and verifies | Wait; do not retry in parallel |
-| Aggregate `status: "empty"` **with** `entitlement` | Commercial database, no package | Not a predicate problem; do not retry |
-| Aggregate `status: "empty"` **without** `entitlement` | The predicate genuinely matched nothing | Broaden the predicate |
-| `indicators` returns empty | `source` must equal the cohort's actual database (`method_id` is not portable) | Pass the correct `--source` |
-| Cohort values span orders of magnitude | Mixed functional units, not real dispersion | Narrow the predicate; read `comparability_note` first |
-| Authorization polling returns `428` | The user has not approved yet | Normal — keep polling at the returned `interval` |
-| Still no commercial data after login | That account has no such data package | Login only changes credentials, not entitlements; show the purchase link |
+| `command not found` | CLI not installed | Install the pinned version per "Access" |
+| Authentication error / `doctor` exit 2 | No local credential, or it was rejected | `environmental-data login --json`; continue the task after the user approves |
+| `lci` / `lcia` / `methods` refused with `QUERYING_LCA_DATASETS_API_KEY` set | These commands reject API keys (`lookup` accepts them) | Run them with the `login` credential |
+| `restricted: true` | This account cannot read that database's values (see `reason`: commercial values need CLI commercial access enabled plus the data package) | Say so; check whether a free database answers the same question |
+| Still no commercial data after login | CLI commercial access not enabled, or no such data package | Login changes credentials, not entitlements; report the restriction, do not log in again or switch accounts |
+| `lcia` returns no data | Wrong methodId, or the database has no LCIA layer | Run `methods <code>` first; check `methodIdsWithData` |
+| `missingKeys` non-empty | Key not in the current catalogue (usually an older version) | Search again |
+| Pinned version rejected | Versions must be exact (`3.13.0`, not `3.13`) | Use the version string from `sources --json` |
+| No results once `--location` is added | Unknown location codes match nothing and never widen the search | Use codes as returned in `location.id` (`CN`, `CN-ECGC`, `RER`, `GLO` …) |
+| Candidate values span orders of magnitude | Mixed functional units, not real dispersion | Check each reference unit and boundary; convert only with evidence |
+| Service unavailable | Server-side failure | Not an entitlement denial; retry later, do not switch accounts or use web-page numbers |
+| `429` | Per-address rate limit | The CLI backs off; do not run parallel or unbounded loops |
